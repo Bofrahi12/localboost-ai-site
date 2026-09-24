@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interactive demo — LocalBoost AI</title>
+<meta name="description" content="Try LocalBoost AI without signing up: run a sample audit, generate AI fixes, review side-by-side and apply. Sample data, runs in your browser.">
+<link rel="canonical" href="https://localboost.ai/en/demo.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Interactive demo — LocalBoost AI">
+<meta property="og:description" content="Try LocalBoost AI without signing up: run a sample audit, generate AI fixes, review side-by-side and apply. Sample data, runs in your browser.">
+<meta property="og:url" content="https://localboost.ai/en/demo.html">
+<meta property="og:site_name" content="LocalBoost AI">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2C10 2 5.5 6.6 5.5 12.5 5.5 20 16 30 16 30s10.5-10 10.5-17.5C26.5 6.6 22 2 16 2z' fill='%234f46e5'/%3E%3C/svg%3E">
+</head>
+<body data-page="demo">
+
+<a class="skip-link" href="#main">Skip to main content</a>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="index.html" aria-label="LocalBoost AI — home"><svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f46e5"/><stop offset="1" stop-color="#10b981"/></linearGradient></defs><path d="M16 2C10 2 5.5 6.6 5.5 12.5 5.5 20 16 30 16 30s10.5-10 10.5-17.5C26.5 6.6 22 2 16 2z" fill="url(#lg)"/><path d="M17.5 8l-5.2 7h3.4l-1.4 5 5.4-7.2h-3.5l1.3-4.8z" fill="#fff"/></svg><span>LocalBoost AI</span></a>
+    <nav class="main-nav" aria-label="Primary"><ul><li><a href="features.html" data-nav="features">Features</a></li><li><a href="how-it-works.html" data-nav="how-it-works">How it works</a></li><li><a href="ai-providers.html" data-nav="ai-providers">AI providers</a></li><li><a href="pricing.html" data-nav="pricing">Pricing</a></li><li><a href="docs.html" data-nav="docs">Docs</a></li><li><a href="faq.html" data-nav="faq">FAQ</a></li><li><a href="demo.html" data-nav="demo" aria-current="page">Demo</a></li></ul></nav>
+    <div class="header-actions">
+      <div class="lang-switch" role="group" aria-label="Language"><a href="../ar/demo.html" hreflang="ar" lang="ar" aria-label="Switch to Arabic">العربية</a><span aria-current="true">EN</span></div>
+      <a class="btn btn-primary btn-sm" href="#beta" data-beta>Start Free</a>
+      <button class="menu-toggle" aria-expanded="false" aria-controls="mobileNav" aria-label="Menu">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M2 5h16v2H2zM2 9h16v2H2zM2 13h16v2H2z"/></svg>
+      </button>
+    </div>
+  </div>
+  <nav class="mobile-nav" id="mobileNav" aria-label="Mobile"><ul><li><a href="features.html" data-nav="features">Features</a></li><li><a href="how-it-works.html" data-nav="how-it-works">How it works</a></li><li><a href="ai-providers.html" data-nav="ai-providers">AI providers</a></li><li><a href="pricing.html" data-nav="pricing">Pricing</a></li><li><a href="docs.html" data-nav="docs">Docs</a></li><li><a href="faq.html" data-nav="faq">FAQ</a></li><li><a href="demo.html" data-nav="demo" aria-current="page">Demo</a></li></ul></nav>
+</header>
+
+<main id="main">
+<section class="hero"><div class="container">
+<span class="hero-badge"><span class="dot" aria-hidden="true"></span>Interactive demo · Sample data</span>
+<h1>Try the full workflow — <span class="grad">no signup</span> needed</h1>
+<p class="lede">Pick a sample business, run an audit, generate AI fixes, review them side-by-side and apply. Then download v1.0 to do it on your real site.</p>
+<div class="hero-ctas">
+<a class="btn btn-primary" href="../downloads/localboost-ai-1.0.0.zip" download>Download v1.0 — Free</a>
+<a class="btn btn-outline" href="how-it-works.html">How it works</a>
+</div>
+</div></section>
+
+<section class="section"><div class="container" style="max-width:62rem">
+<div class="demo-banner">
+<div><strong>“Cap Immo Tanger” below is a real audit</strong> of the live site — re-run 24 Sep 2026 after all fixes, including static per-listing SEO pages (score 74 → 100). “Discover Islam” is a second real audit (72/100). The remaining three businesses use fictional sample data. This demo runs entirely in your browser — nothing is sent anywhere and no signup is required. Want it on your real pages? <a href="../downloads/localboost-ai-1.0.0.zip" download>Download v1.0 free</a>.</div>
+</div>
+
+<h2>Step 1 — Pick a sample business</h2>
+<div id="demoBusinesses" class="demo-biz-grid" role="group" aria-label="Sample businesses"></div>
+<button id="demoRun" class="btn btn-primary" type="button" disabled>Run audit</button>
+
+<div id="demoScan" class="demo-scan" hidden>
+<div class="demo-scan-track"><div id="demoScanBar"></div></div>
+<ul id="demoScanSteps"></ul>
+</div>
+
+<div id="demoResults" hidden>
+<h2>Step 2 — Review your audit</h2>
+<div class="demo-results-head">
+<div class="demo-dial" role="img" aria-label="Demo SEO score">
+<svg width="132" height="132" viewBox="0 0 132 132" aria-hidden="true">
+<circle cx="66" cy="66" r="56" fill="none" stroke="#e2e8f0" stroke-width="12"/>
+<circle id="demoScoreRing" cx="66" cy="66" r="56" fill="none" stroke="#4f46e5" stroke-width="12" stroke-linecap="round" stroke-dasharray="351.86" stroke-dashoffset="351.86"/>
+</svg>
+<div class="demo-dial-num"><strong id="demoScoreNum">0</strong><span>/ 100</span></div>
+</div>
+<div><strong id="demoIssuesCount"></strong><p class="demo-sub">Click “Fix with AI” on any issue to see the suggestion, then apply it and watch the score move.</p></div>
+</div>
+<div id="demoIssues"></div>
+<button id="demoReset" class="btn btn-outline" type="button">Start over</button>
+</div>
+
+<div class="demo-monitor">
+<h3>Step 3 — Monitoring (sample)</h3>
+<p>Every week, LocalBoost re-scans your pages and emails a report like this one. In this demo the numbers follow what you just did:</p>
+<div class="demo-mon-stats">
+<div><strong id="demoMonScore">–</strong><span>Current demo score</span></div>
+<div><strong id="demoMonApplied">0</strong><span>Fixes applied</span></div>
+<div><strong>0</strong><span>New issues</span></div>
+</div>
+</div>
+</div></section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <a class="brand" href="index.html" style="color:#fff"><svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f46e5"/><stop offset="1" stop-color="#10b981"/></linearGradient></defs><path d="M16 2C10 2 5.5 6.6 5.5 12.5 5.5 20 16 30 16 30s10.5-10 10.5-17.5C26.5 6.6 22 2 16 2z" fill="url(#lg)"/><path d="M17.5 8l-5.2 7h3.4l-1.4 5 5.4-7.2h-3.5l1.3-4.8z" fill="#fff"/></svg><span>LocalBoost AI</span></a>
+      <p>Local SEO made simple for WordPress businesses.</p>
+      <p style="font-size:.85rem;color:#94a3b8">v1.0 free — no payment is collected on this site.</p>
+    </div>
+    <div><h4>Product</h4><ul><li><a href="features.html">Features</a></li><li><a href="how-it-works.html">How it works</a></li><li><a href="business-types.html">Business types</a></li><li><a href="pricing.html">Pricing</a></li></ul></div><div><h4>Resources</h4><ul><li><a href="docs.html">Documentation</a></li><li><a href="security.html">Security & privacy</a></li><li><a href="faq.html">FAQ</a></li><li><a href="changelog.html">Changelog</a></li></ul></div><div><h4>Company</h4><ul><li><a href="ai-providers.html">AI providers</a></li><li><a href="contact.html">Contact & support</a></li></ul></div>
+  </div>
+  <div class="container footer-bottom">
+    <span>© <span id="year">2026</span> LocalBoost AI. All rights reserved.</span>
+    <span><a href="../en/index.html" hreflang="en">English</a> · <a href="../ar/demo.html" hreflang="ar">العربية</a></span>
+  </div>
+</footer>
+
+<dialog class="beta" id="betaDialog" aria-labelledby="betaTitle">
+  <div class="beta-inner">
+    <button class="beta-close" id="betaClose" aria-label="Close">×</button>
+    <h3 id="betaTitle">Join the LocalBoost AI beta</h3>
+    <p>LocalBoost AI is currently in private beta. Signing up is <strong>free</strong> — no payment, no credit card, no checkout. There is no payment flow yet; Pro details will be announced before anything is ever charged.</p>
+    <form class="beta-form" id="betaForm" name="beta-signup" method="POST" action="https://formspree.io/f/YOUR_FORM_ID">
+      <input type="hidden" name="form-name" value="beta-signup">
+      <p style="display:none" aria-hidden="true"><label>Don’t fill this out if you’re human: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+      <label for="betaEmail">Email address</label>
+      <input type="email" id="betaEmail" name="email" required autocomplete="email" placeholder="you@example.com">
+      <button class="btn btn-primary" type="submit">Notify me</button>
+    </form>
+    <p class="beta-ok" id="betaOk" role="status">Thanks — you're on the list! We'll email you when the beta opens.</p>
+    <p class="beta-err" id="betaErr" role="alert">Something went wrong sending your email. Please try again.</p>
+    <p style="font-size:.82rem;color:var(--slate-500)">We'll only use your email to notify you about the beta. No spam, no sharing.</p>
+  </div>
+</dialog>
+
+<script>window.LBAI_DEMO = {"ui": {"run": "Run audit", "realAudit": "Real audit · 24 Sep 2026", "reset": "Start over", "high": "High", "medium": "Medium", "low": "Low", "fix": "Fix with AI", "hide": "Hide preview", "before": "Current", "after": "AI suggestion", "apply": "Apply fix", "applied": "Applied ✓", "advisory": "Advisory", "appliedMsg": "Fix applied in this demo. In the real plugin it would update your page — with a revision saved first.", "issuesFound": function(n){return n+' issues found';}, "reviewHint": "Click “Fix with AI” on any issue to see the suggestion, then apply it and watch the score move.", "scanSteps": ["Fetching page…", "Checking title tag…", "Checking meta description…", "Checking headings…", "Checking content…", "Checking images…", "Checking business schema…", "Calculating score…"]}, "businesses": [{"id": "plumbing", "name": "Atlas Plumbing", "type": "Plumber", "city": "Tangier", "url": "atlas-plumbing.example.ma", "baseScore": 62, "issues": [{"id": "t1", "sev": "high", "title": "Title tag just says “Home”", "problem": "Search engines and customers can’t tell what you do or where you are.", "fixable": true, "before": "Home", "after": "Atlas Plumbing Tangier | 24/7 Emergency Plumber", "points": 12}, {"id": "m1", "sev": "high", "title": "Missing meta description", "problem": "With no description, Google invents one — and it’s usually boring.", "fixable": true, "before": "(none)", "after": "Emergency plumber in Tangier, 24/7. Fixed pricing, 60-minute response. Call Atlas Plumbing now.", "points": 10}, {"id": "h1", "sev": "medium", "title": "Page has no H1 heading", "problem": "Your most important heading is missing, so Google guesses what the page is about.", "fixable": false, "note": "LocalBoost never injects an H1 blindly — it shows you exactly where to place it and drafts the text for your approval."}, {"id": "f1", "sev": "medium", "title": "No FAQ content", "problem": "“Plumber near me” searches often surface FAQ results. You have none.", "fixable": true, "before": "(none)", "after": "Q: Do you work at night?\nA: Yes — 24/7 across Tangier, no extra night charge.\n\nQ: How fast can you arrive?\nA: Usually within 60 minutes.", "points": 8}, {"id": "c1", "sev": "low", "title": "Weak call to action", "problem": "“Click here” tells a stressed customer with a leak nothing about what happens next.", "fixable": true, "before": "Click here", "after": "Call now — a plumber at your door within 60 minutes", "points": 5}, {"id": "s1", "sev": "medium", "title": "Missing LocalBusiness schema", "problem": "Search engines can’t confidently show your hours, service area and phone number.", "fixable": true, "before": "(none)", "after": "{\n  \"@type\": \"Plumber\",\n  \"name\": \"Atlas Plumbing\",\n  \"areaServed\": \"Tangier\",\n  \"telephone\": \"+212 6 00 00 00 00\",\n  \"openingHours\": \"Mo-Su 00:00-24:00\"\n}", "points": 8}]}, {"id": "cafe", "name": "Café Al Boraq", "type": "Café", "city": "Casablanca", "url": "cafe-alboraq.example.ma", "baseScore": 58, "issues": [{"id": "t1", "sev": "high", "title": "Title tag just says “Welcome”", "problem": "“Welcome” ranks for nothing and tells visitors nothing.", "fixable": true, "before": "Welcome", "after": "Café Al Boraq Casablanca | Specialty Coffee & Breakfast", "points": 12}, {"id": "m1", "sev": "high", "title": "Missing meta description", "problem": "Your Google snippet is auto-generated and mentions none of your strengths.", "fixable": true, "before": "(none)", "after": "Specialty coffee and fresh breakfast in Maârif, Casablanca. Open daily 7:00–23:00.", "points": 10}, {"id": "a1", "sev": "medium", "title": "Photos have no alt text", "problem": "Screen readers and Google Images skip your photos entirely.", "fixable": true, "before": "IMG_2041.jpg", "after": "Flat white and fresh croissants at Café Al Boraq, Casablanca", "points": 7}, {"id": "h1", "sev": "medium", "title": "Page has no H1 heading", "problem": "The page’s main topic is never stated in a heading.", "fixable": false, "note": "LocalBoost never injects an H1 blindly — it shows you exactly where to place it and drafts the text for your approval."}, {"id": "c1", "sev": "low", "title": "Weak call to action", "problem": "“Contact” is vague — visitors don’t know what they’ll get.", "fixable": true, "before": "Contact", "after": "Reserve your table — we reply within 15 minutes", "points": 5}, {"id": "l1", "sev": "low", "title": "Pages don’t link to each other", "problem": "Your menu page is orphaned — visitors (and Google) may never find it.", "fixable": true, "before": "(none)", "after": "Homepage → “See the breakfast menu” links to /menu", "points": 4}]}, {"id": "dental", "name": "Smile Dental", "type": "Dental clinic", "city": "Rabat", "url": "smile-dental.example.ma", "baseScore": 71, "issues": [{"id": "t1", "sev": "low", "title": "Title tag is stuffed with keywords", "problem": "Six keywords crammed into one title looks spammy and gets truncated.", "fixable": true, "before": "Smile Dental Clinic Rabat | Best Dentist Teeth Whitening Implants Orthodontics Agdal", "after": "Smile Dental Rabat | Dentist in Agdal", "points": 6}, {"id": "m1", "sev": "medium", "title": "Meta description is too long", "problem": "Google cuts it off mid-sentence — the ending (and your phone number) never shows.", "fixable": true, "before": "Smile Dental Clinic in Rabat Agdal offers the best dentist services including teeth whitening, dental implants, orthodontics, braces, root canal treatment and emergency dental care for the whole family at affordable prices...", "after": "Gentle dentist in Agdal, Rabat. Whitening, implants & braces. Book online in 1 minute.", "points": 10}, {"id": "i1", "sev": "low", "title": "Introduction is two sentences", "problem": "Two generic sentences don’t tell patients why they should choose you.", "fixable": true, "before": "Welcome to our clinic. We do dentistry.", "after": "Gentle, pain-free dentistry in Agdal, Rabat — from check-ups to implants, with clear pricing before we start.", "points": 6}, {"id": "f1", "sev": "medium", "title": "No FAQ content", "problem": "Patients search questions like “does whitening hurt” — you answer none of them.", "fixable": true, "before": "(none)", "after": "Q: Does whitening damage teeth?\nA: No — we use enamel-safe gels.\n\nQ: Do you take emergencies?\nA: Yes, same-day slots every morning.", "points": 8}, {"id": "c1", "sev": "low", "title": "Weak call to action", "problem": "“Submit” on a booking form feels like paperwork, not care.", "fixable": true, "before": "Submit", "after": "Book my visit — pick your slot in 1 minute", "points": 5}, {"id": "s1", "sev": "medium", "title": "Missing Dentist schema", "problem": "Without structured data, Google can’t show your ratings, hours and address richly.", "fixable": true, "before": "(none)", "after": "{\n  \"@type\": \"Dentist\",\n  \"name\": \"Smile Dental\",\n  \"address\": \"Agdal, Rabat\",\n  \"telephone\": \"+212 5 00 00 00 00\"\n}", "points": 8}]},{"id": "capimmo","real": true,"name": "Cap Immo Tanger","type": "Real estate agency","city": "Tangier","url": "bofrahi12.github.io/capimmo-tanger","baseScore": 100,"issues": []},{"id":"discover-islam","real":true,"name":"Discover Islam","type":"Educational platform","city":"Online","url":"islamicexp-jtresalw.manus.space","baseScore":72,"issues":[{"id":"c1","sev":"high","title":"Canonical points to a different domain","problem":"The page is served on islamicexp-jtresalw.manus.space, but the canonical tag says islamicexp.lol — search engines get conflicting signals about which URL to index.","fixable":true,"before":"https://islamicexp.lol/","after":"https://islamicexp-jtresalw.manus.space/","points":8},{"id":"o1","sev":"high","title":"Share description cut off mid-word","problem":"og:description and twitter:description literally end at \"Explore Islam through the Qur\" — social shares show a broken sentence.","fixable":true,"before":"Explore Islam through the Qur","after":"Explore Islam through the Qur'an, beliefs, prophets, worship and history.","points":6},{"id":"s1","sev":"medium","title":"No structured data at all","problem":"No JSON-LD schema anywhere — search engines can't show rich results for the site or its 8 questions.","fixable":true,"before":"(none)","after":"WebSite + FAQPage schema built from the 8 questions in \"Questions You May Have\"","points":6},{"id":"a1","sev":"medium","title":"4 article images missing alt text","problem":"The four \"Latest Articles\" thumbnails have empty alt attributes — screen readers and image search skip them.","fixable":true,"before":"alt=\"\"","after":"Descriptive alt text for each thumbnail","points":4},{"id":"m1","sev":"low","title":"Meta description too short","problem":"102 characters — Google may rewrite it instead of showing your own words.","fixable":true,"before":"Explore Islam through the Qur'an, beliefs, prophets, worship, history and answers to common questions.","after":"Discover Islam through the Qur'an, beliefs, prophets and worship — clear answers to common questions, articles and convert stories.","points":2},{"id":"u1","sev":"low","title":"Visible \"ad space reserved\" placeholder","problem":"An unfinished AdSense placeholder is visible to visitors — the site looks incomplete.","fixable":true,"before":"Ad space reserved — connect your AdSense Publisher ID when ready.","after":"(hidden until a real ad unit is configured)","points":2}]}]};</script>
+<script src="../assets/app.js" defer></script>
+<script src="../assets/demo.js" defer></script>
+</body>
+</html>

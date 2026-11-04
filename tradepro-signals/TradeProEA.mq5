@@ -12,7 +12,7 @@
 //| وفريم 4H خاسر (−29R): الروبوت للشارت 1H فقط.                    |
 //+------------------------------------------------------------------+
 #property strict
-#property version "1.12"
+#property version "2.00"
 #include <Trade/Trade.mqh>
 CTrade trade;
 
@@ -27,6 +27,7 @@ input int    InpMaxTradesDay= 3;       // أقصى عدد صفقات في الي
 input double InpDailyLossPct= 3.0;     // وقف التداول اليومي عند خسارة % من الرصيد
 input bool   InpVerbose     = true;    // طباعة قراءة السوق في سجل Experts كل شمعة
 input bool   InpTestMode    = false;   // وضع الاختبار: صفقة تجريبية صغيرة عند أول قراءة (Demo فقط — ممنوع على الحقيقي)
+input bool   InpBasketOnly  = true;    // سلة الرابحين فقط: يرفض الدخول في الأسواق اللي خسرات في الاختبار
 
 int hEMA9, hEMA21, hEMA50, hEMA200, hRSI, hMACD, hATR;
 datetime lastBarTime = 0;
@@ -113,6 +114,12 @@ double CalcLot(double slDistancePrice){
    lot = MathFloor(lot / step) * step;
    return MathMax(minLot, MathMin(maxLot, NormalizeDouble(lot, 2)));
 }
+
+bool SymbolInBasket(){
+   string ok[] = {"BTC","ADA","SOL","XRP","EURUSD","AAPL","TSLA"};
+   for(int k = 0; k < ArraySize(ok); k++) if(StringFind(_Symbol, ok[k]) >= 0) return true;
+   return false;
+}
 datetime lastPrintBar = 0;
 bool testDone = false;
 bool testWarned = false;
@@ -122,6 +129,7 @@ void Evaluate(){
    if(TradesToday() >= InpMaxTradesDay) return;
    double balance = AccountInfoDouble(ACCOUNT_BALANCE);
    if(balance > 0 && DailyPL() <= -balance * InpDailyLossPct / 100.0) return;
+   if(InpBasketOnly && !SymbolInBasket()) return;   // انضباط السلة: لا دخول خارج الأسواق الرابحة المختبرة
    // دخول واحد كحد أقصى في كل شمعة (القراءة كل 30 ثانية ما كتضاعفش الصفقات)
    datetime bar0 = iTime(_Symbol, PERIOD_CURRENT, 0);
    if(bar0 == lastEntryBar) return;
@@ -192,14 +200,14 @@ void Heartbeat(){
       if(rsi < 40 || rsi > 68) miss += "· RSI خارج نطاق الشراء (" + DoubleToString(rsi,0) + ") ";
       if(strength <= 0.08) miss += "· القوة ضعيفة ";
       if(miss == "") miss = "الشروط كاملة — الدخول عند القراءة الموالية";
-      Print("TradeProEA نبض ", _Symbol, ": شراء؟ ", miss, "· سبريد ", DoubleToString(spreadPct,0), "%ATR · التداول الآلي: ", (algoOn ? "مفعّل ✅" : "موقوف ❌ فعّل زر Algo Trading واسمح في إعدادات الروبو"));
+      Print("TradeProEA نبض ", _Symbol, (InpBasketOnly && !SymbolInBasket()) ? ": ⚠️ هاد السوق ماشي في سلة الرابحين المختبرة — الدخول موقوف · " : ": شراء؟ ", miss, "· سبريد ", DoubleToString(spreadPct,0), "%ATR · التداول الآلي: ", (algoOn ? "مفعّل ✅" : "موقوف ❌ فعّل زر Algo Trading واسمح في إعدادات الروبو"));
    } else {
       if(!(Buf(hEMA9,0,2) >= Buf(hEMA21,0,2) && e9 < e21) && !(trendDn && e9 < e21 && macd < macdSig && rsi >= 35 && rsi <= 50 && strength > 0.35)) miss += "لا تقاطع طازج ولا استمرارية ";
       if(macd >= macdSig) miss += "· MACD ضد البيع ";
       if(rsi < 32 || rsi > 60) miss += "· RSI خارج نطاق البيع (" + DoubleToString(rsi,0) + ") ";
       if(strength <= 0.08) miss += "· القوة ضعيفة ";
       if(miss == "") miss = "الشروط كاملة — الدخول عند القراءة الموالية";
-      Print("TradeProEA نبض ", _Symbol, ": بيع؟ ", miss, "· سبريد ", DoubleToString(spreadPct,0), "%ATR · التداول الآلي: ", (algoOn ? "مفعّل ✅" : "موقوف ❌ فعّل زر Algo Trading واسمح في إعدادات الروبو"));
+      Print("TradeProEA نبض ", _Symbol, (InpBasketOnly && !SymbolInBasket()) ? ": ⚠️ هاد السوق ماشي في سلة الرابحين المختبرة — الدخول موقوف · " : ": بيع؟ ", miss, "· سبريد ", DoubleToString(spreadPct,0), "%ATR · التداول الآلي: ", (algoOn ? "مفعّل ✅" : "موقوف ❌ فعّل زر Algo Trading واسمح في إعدادات الروبو"));
    }
 }
 void MaybeTestTrade(){

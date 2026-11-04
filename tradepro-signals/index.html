@@ -46,7 +46,21 @@ h1{margin:0;font-size:28px}h1 span{color:var(--gold)}
   <button id="refresh">↻ تحديث الآن</button>
 </div>
 <div id="status">جارٍ جلب الأسعار الحقيقية من السوق…</div>
+<div id="probar" style="text-align:center;color:var(--mut);font-size:13px;padding:2px 10px 8px">
+  ⏳ إغلاق الشمعة الحالية بعد: <b id="countdown" style="color:var(--gold)">--:--</b>
+  <span id="funding"></span>
+</div>
 <main class="grid" id="grid"></main>
+<section style="max-width:560px;margin:0 auto 18px;padding:16px;background:var(--card);border:1px solid var(--line);border-radius:16px">
+  <h2 style="text-align:center;margin:0 0 10px">حاسبة حجم الصفقة (مخاطرة 1%)</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:14px">
+    <label>رأس المال ($) <input id="ps_cap" type="number" value="1000" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--txt)"></label>
+    <label>المخاطرة % <input id="ps_risk" type="number" value="1" step="0.5" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--txt)"></label>
+    <label>الدخول <input id="ps_entry" type="number" placeholder="من أي صفقة" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--txt)"></label>
+    <label>وقف الخسارة <input id="ps_sl" type="number" placeholder="من نفس الصفقة" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--txt)"></label>
+  </div>
+  <div id="ps_out" style="text-align:center;padding-top:10px;font-size:15px;color:var(--gold)">دخل الدخول ووقف الخسارة من أي بطاقة صفقة</div>
+</section>
 <section style="max-width:900px;margin:0 auto 18px;padding:0 16px;line-height:2">
   <h2 style="text-align:center">كيفاش تستعمل المنصة — خطوة بخطوة</h2>
   <ol>
@@ -70,6 +84,13 @@ function rsi(c,p=14){let g=[],l=[];for(let i=1;i<c.length;i++){const d=c[i]-c[i-
 function macdBull(c){const e12=ema(c,12),e26=ema(c,26);const line=c.map((_,i)=>e12[i]-e26[i]);const sig=ema(line,9);return line[line.length-1]>sig[sig.length-1]}
 function atr(h,l,c,p=14){let trs=[];for(let i=1;i<c.length;i++)trs.push(Math.max(h[i]-l[i],Math.abs(h[i]-c[i-1]),Math.abs(l[i]-c[i-1])));let a=trs.slice(0,p).reduce((x,y)=>x+y,0)/p;for(let i=p;i<trs.length;i++)a=(a*(p-1)+trs[i])/p;return a}
 const fmt=n=>n>=100?n.toFixed(2):n>=1?n.toFixed(4):n.toFixed(6);
+async function biasTF(sym,tf){
+  try{const r=await fetch(`${BASE}/api/v3/klines?symbol=${sym}&interval=${tf}&limit=60`);const rows=await r.json();
+  const c=rows.map(x=>+x[4]);const e9=ema(c,9),e21=ema(c,21);const d=e9[e9.length-1]-e21[e21.length-1];
+  return Math.abs(d)/c[c.length-1]<0.0004?'•':(d>0?'▲':'▼')}catch(e){return '?'}}
+async function stats24(sym){
+  try{const r=await fetch(`${BASE}/api/v3/ticker/24hr?symbol=${sym}`);const t=await r.json();
+  return {chg:+t.priceChangePercent,hi:+t.highPrice,lo:+t.lowPrice}}catch(e){return null}}
 async function analyse(sym){
   const r=await fetch(`${BASE}/api/v3/klines?symbol=${sym}&interval=${TF}&limit=200`);
   const rows=await r.json();
@@ -81,12 +102,17 @@ async function analyse(sym){
   let levels=null;
   if(dir!=='NEUTRAL'){const sl=dir==='BUY'?price-1.5*A:price+1.5*A;const risk=Math.abs(price-sl);
     levels={entry:price,sl,tp1:dir==='BUY'?price+risk*1.5:price-risk*1.5,tp2:dir==='BUY'?price+risk*2.5:price-risk*2.5,tp3:dir==='BUY'?price+risk*4:price-risk*4}}
-  return {sym,price,R,dir,strength:Math.abs(s),levels};
+  const st=await stats24(sym);
+  const biases={}; for(const tf of ['15m','1h','4h']) biases[tf]= tf===TF ? (e9[e9.length-1]>e21[e21.length-1]?'▲':'▼') : await biasTF(sym,tf);
+  return {sym,price,R,dir,strength:Math.abs(s),levels,st,biases};
 }
 function card(x){
   const name=x.sym.replace('USDT','/USDT');
   const badge=x.dir==='BUY'?'<span class="badge buy">شراء BUY</span>':x.dir==='SELL'?'<span class="badge sell">بيع SELL</span>':'<span class="badge neu">حياد — لا صفقة</span>';
   let rows=`<div class="row"><span>السعر الحالي</span><b>$${fmt(x.price)}</b></div>
+  ${x.st?`<div class="row"><span>تغيّر 24 ساعة</span><b style="color:${x.st.chg>=0?'#86efac':'#fca5a5'}">${x.st.chg>=0?'+':''}${x.st.chg.toFixed(2)}%</b></div>
+  <div class="row"><span>أعلى / أدنى 24 س</span><b>$${fmt(x.st.hi)} / $${fmt(x.st.lo)}</b></div>`:''}
+  <div class="row"><span>اتجاه الفريمات 15د / 1س / 4س</span><b>${x.biases['15m']} · ${x.biases['1h']} · ${x.biases['4h']}</b></div>
   <div class="row"><span>RSI</span><b>${x.R.toFixed(1)}</b></div>
   <div class="row"><span>قوة الإشارة</span><b>${x.strength}%</b></div>
   <div class="meter"><i style="width:${x.strength}%"></i></div>`;
@@ -94,9 +120,10 @@ function card(x){
   if(x.levels){const L=x.levels;
     rows+=`<div class="row"><span>الدخول Entry</span><b>$${fmt(L.entry)}</b></div>
     <div class="row"><span>وقف الخسارة SL</span><b style="color:#fca5a5">$${fmt(L.sl)}</b></div>
-    <div class="row"><span>الهدف 1 TP1</span><b style="color:#86efac">$${fmt(L.tp1)}</b></div>
-    <div class="row"><span>الهدف 2 TP2</span><b style="color:#86efac">$${fmt(L.tp2)}</b></div>
-    <div class="row"><span>الهدف 3 TP3</span><b style="color:#86efac">$${fmt(L.tp3)}</b></div>`;
+    <div class="row"><span>الهدف 1 TP1 (1.5R)</span><b style="color:#86efac">$${fmt(L.tp1)}</b></div>
+    <div class="row"><span>الهدف 2 TP2 (2.5R)</span><b style="color:#86efac">$${fmt(L.tp2)}</b></div>
+    <div class="row"><span>الهدف 3 TP3 (4R)</span><b style="color:#86efac">$${fmt(L.tp3)}</b></div>
+    <div class="row"><span>الشارت</span><b><a target="_blank" style="color:#93c5fd" href="https://www.tradingview.com/symbols/${x.sym.replace('USDT','USDT')}/?exchange=BINANCE">TradingView ↗</a></b></div>`;
     const txt=encodeURIComponent(`📊 صفقة ${name} — ${x.dir}\nالدخول: $${fmt(L.entry)}\nوقف الخسارة: $${fmt(L.sl)}\nالأهداف: $${fmt(L.tp1)} / $${fmt(L.tp2)} / $${fmt(L.tp3)}\nقوة الإشارة: ${x.strength}% — TradePro Signals`);
     share=`<div class="share"><a class="wa" target="_blank" href="https://wa.me/?text=${txt}">شارك عبر واتساب</a><a class="tg" target="_blank" href="https://t.me/share/url?url=&text=${txt}">Telegram</a></div>`;
   }
@@ -116,7 +143,30 @@ async function tickPrices(){
   try{const r=await fetch(`${BASE}/api/v3/ticker/price`);const all=await r.json();const map={};all.forEach(t=>map[t.symbol]=+t.price);
   document.querySelectorAll('[data-sym]').forEach(el=>{if(map[el.dataset.sym])el.textContent='$'+fmt(map[el.dataset.sym])})}catch(e){}
 }
-load(); setInterval(load,60000); setInterval(tickPrices,5000);
+function candleCountdown(){
+  const mins={'15m':15,'1h':60,'4h':240}[TF]; const now=new Date();
+  const total=mins*60; const elapsed=(now.getUTCHours()*3600+now.getUTCMinutes()*60+now.getUTCSeconds())%total;
+  const left=total-elapsed; const m=String(Math.floor(left/60)).padStart(2,'0'), s=String(left%60).padStart(2,'0');
+  const el=document.getElementById('countdown'); if(el) el.textContent=`${m}:${s} (فريم ${TF})`;
+}
+async function funding(){
+  try{const out=[];
+  for(const inst of ['BTC-USDT-SWAP','ETH-USDT-SWAP']){
+    const r=await fetch(`https://www.okx.com/api/v5/public/funding-rate?instId=${inst}`);const j=await r.json();
+    const fr=parseFloat(j.data[0].fundingRate)*100; out.push(`${inst.split('-')[0]} Funding: ${fr>=0?'+':''}${fr.toFixed(4)}%`);
+  }
+  const el=document.getElementById('funding'); if(el) el.textContent=' · '+out.join(' · ')+' (OKX)';
+  }catch(e){}
+}
+function psCalc(){
+  const cap=+document.getElementById('ps_cap').value, rk=+document.getElementById('ps_risk').value,
+        en=+document.getElementById('ps_entry').value, sl=+document.getElementById('ps_sl').value;
+  const out=document.getElementById('ps_out'); if(!cap||!en||!sl||en===sl){out.textContent='دخل الدخول ووقف الخسارة من أي بطاقة صفقة';return}
+  const riskAmt=cap*rk/100, dist=Math.abs(en-sl), qty=riskAmt/dist;
+  out.innerHTML=`المبلغ المعرض للخسارة: <b>$${riskAmt.toFixed(2)}</b> · الكمية: <b>${qty.toFixed(6)}</b> · قيمة الصفقة: <b>$${(qty*en).toFixed(2)}</b>`;
+}
+['ps_cap','ps_risk','ps_entry','ps_sl'].forEach(id=>document.getElementById(id).addEventListener('input',psCalc));
+load(); setInterval(load,60000); setInterval(tickPrices,5000); setInterval(candleCountdown,1000); candleCountdown(); funding(); setInterval(funding,120000);
 </script>
 </body>
 </html>

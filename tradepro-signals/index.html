@@ -50,6 +50,22 @@ h1{margin:0;font-size:28px}h1 span{color:var(--gold)}
   ⏳ إغلاق الشمعة الحالية بعد: <b id="countdown" style="color:var(--gold)">--:--</b>
   <span id="funding"></span>
 </div>
+<div class="tradingview-widget-container" style="margin:6px auto;max-width:1200px">
+  <div class="tradingview-widget-container__widget"></div>
+  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+  {"symbols":[{"proName":"FX:EURUSD","title":"EUR/USD"},{"proName":"FX:GBPUSD","title":"GBP/USD"},{"proName":"OANDA:XAUUSD","title":"الذهب"},{"proName":"FOREXCOM:SPXUSD","title":"S&P 500"},{"proName":"FOREXCOM:NSXUSD","title":"Nasdaq 100"},{"proName":"NASDAQ:AAPL","title":"Apple"},{"proName":"BITSTAMP:BTCUSD","title":"Bitcoin"}],"showSymbolLogo":false,"colorTheme":"dark","isTransparent":true,"displayMode":"adaptive","locale":"ar"}
+  </script>
+</div>
+<section style="max-width:1200px;margin:0 auto 6px;padding:0 16px">
+  <h2 style="text-align:center;margin:8px 0">جميع الأسواق — مباشر</h2>
+  <p style="text-align:center;color:var(--mut);font-size:13px;margin:0 0 8px">أسعار وشارتات حية من TradingView: فوركس، ذهب ونفط، مؤشرات، أسهم وكريبتو. إشاراتنا المحسوبة هنا للكريبتو، وإشارات هاد الأسواق كيولّدها روبوت MT5 من بيانات بروكرك مباشرة.</p>
+  <div class="tradingview-widget-container" style="height:520px">
+    <div class="tradingview-widget-container__widget" style="height:100%"></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+    {"colorTheme":"dark","dateRange":"1D","showChart":true,"locale":"ar","width":"100%","height":520,"isTransparent":true,"showSymbolLogo":true,"showFloatingTooltip":true,"tabs":[{"title":"فوركس","symbols":[{"s":"FX:EURUSD"},{"s":"FX:GBPUSD"},{"s":"FX:USDJPY"},{"s":"FX:AUDUSD"},{"s":"FX:USDCAD"}]},{"title":"معادن وطاقة","symbols":[{"s":"OANDA:XAUUSD"},{"s":"OANDA:XAGUSD"},{"s":"TVC:USOIL"},{"s":"TVC:UKOIL"}]},{"title":"مؤشرات","symbols":[{"s":"FOREXCOM:SPXUSD"},{"s":"FOREXCOM:NSXUSD"},{"s":"FOREXCOM:DJI"},{"s":"INDEX:DEU40"}]},{"title":"أسهم","symbols":[{"s":"NASDAQ:AAPL"},{"s":"NASDAQ:TSLA"},{"s":"NASDAQ:NVDA"},{"s":"NASDAQ:MSFT"},{"s":"NASDAQ:AMZN"}]},{"title":"كريبتو","symbols":[{"s":"BITSTAMP:BTCUSD"},{"s":"BITSTAMP:ETHUSD"},{"s":"BINANCE:SOLUSDT"},{"s":"BINANCE:XRPUSDT"}]}]}
+    </script>
+  </div>
+</section>
 <section style="max-width:1200px;margin:0 auto 6px;padding:0 16px">
   <h2 style="text-align:center;margin:8px 0">نبض السوق</h2>
   <div id="pulse" style="text-align:center;color:var(--mut);font-size:14px;line-height:2">جارٍ جلب نبض السوق…</div>
@@ -69,6 +85,11 @@ h1{margin:0;font-size:28px}h1 span{color:var(--gold)}
   <h2 style="text-align:center;margin:0 0 6px">السجل الورقي — اختبار أمامي حي</h2>
   <p style="text-align:center;color:var(--mut);font-size:13px;margin:0 0 8px">سجّل أي صفقة من بطاقتها وغادي نتتبعوها بالسعر الحي: كتسكر عند الهدف الأول أو وقف الخسارة. السجل في ذاكرة هاد الجلسة فقط — كيتمسح ملي كتسد الصفحة.</p>
   <div id="journal" style="font-size:14px;line-height:2;text-align:center;color:var(--mut)">حتى صفقة مسجلة دابا — ضغط «سجّل ورقياً» في أي بطاقة فيها صفقة.</div>
+</section>
+<section style="max-width:900px;margin:0 auto 18px;padding:16px;background:var(--card);border:1px solid var(--gold);border-radius:16px;line-height:2">
+  <h2 style="text-align:center;margin:0 0 6px">🤖 التداول التلقائي — الروبوت كيتداول بلاصتك</h2>
+  <p>المنصة كتسلّمك روبوت <b>TradePro EA</b> لـ MetaTrader 5: كيتركّب في MT5 ديالك، وكيفتح الصفقات تلقائياً بنفس شروط V2 عند <b>أي بروكر MT5</b> (Exness، IC Markets، XM...) وعلى أي سوق عند البروكر: فوركس، ذهب، مؤشرات، أسهم وكريبتو CFD.</p>
+  <p style="color:var(--mut);font-size:14px">علاش بهاد الطريقة؟ حيت هي الطريقة المهنية الآمنة: الروبوت خدام عندك على حسابك، المنصة ما كتشوف لا كلمة السر ولا مفاتيحك، وكتبقى أنت المتحكم — كتوقّفو بضغطة واحدة. القاعدة الذهبية: <b>جرّبو على حساب Demo أسبوعين قبل أي فلوس حقيقية</b>. الروبوت كيجي مع حزمة المنصة (ملف TradeProEA.mq5 + دليل التركيب بالعربية).</p>
 </section>
 <section style="max-width:900px;margin:0 auto 18px;padding:0 16px;line-height:2">
   <h2 style="text-align:center">كيفاش تستعمل المنصة — خطوة بخطوة</h2>

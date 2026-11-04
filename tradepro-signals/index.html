@@ -58,7 +58,7 @@ h1{margin:0;font-size:28px}h1 span{color:var(--gold)}
 </div>
 <section style="max-width:1200px;margin:0 auto 6px;padding:0 16px">
   <h2 style="text-align:center;margin:8px 0">جميع الأسواق — مباشر</h2>
-  <p style="text-align:center;color:var(--mut);font-size:13px;margin:0 0 8px">أسعار وشارتات حية من TradingView: فوركس، ذهب ونفط، مؤشرات، أسهم وكريبتو. إشاراتنا المحسوبة هنا للكريبتو، وإشارات هاد الأسواق كيولّدها روبوت MT5 من بيانات بروكرك مباشرة.</p>
+  <p style="text-align:center;color:var(--mut);font-size:13px;margin:0 0 8px">أسعار وشارتات حية من TradingView: فوركس، ذهب ونفط، مؤشرات، أسهم وكريبتو. إشاراتنا المحسوبة كتغطي الكريبتو والذهب والنفط والفوركس (في قسم الصفقات تحت)؛ الأسهم والمؤشرات هنا كأسعار وشارتات حية، وإشاراتهم كيولّدها روبوت MT5 من بيانات بروكرك.</p>
   <div class="tradingview-widget-container" style="height:520px">
     <div class="tradingview-widget-container__widget" style="height:100%"></div>
     <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
@@ -70,7 +70,7 @@ h1{margin:0;font-size:28px}h1 span{color:var(--gold)}
   <h2 style="text-align:center;margin:8px 0">نبض السوق</h2>
   <div id="pulse" style="text-align:center;color:var(--mut);font-size:14px;line-height:2">جارٍ جلب نبض السوق…</div>
 </section>
-<h2 style="text-align:center;margin:10px 0 0">الصفقات المباشرة — 8 أزواج (كريبتو + ذهب + يورو)</h2>
+<h2 style="text-align:center;margin:10px 0 0">الصفقات المباشرة — 11 زوجاً: كريبتو، ذهب، نفط وفوركس</h2>
 <main class="grid" id="grid"></main>
 <section style="max-width:560px;margin:0 auto 18px;padding:16px;background:var(--card);border:1px solid var(--line);border-radius:16px">
   <h2 style="text-align:center;margin:0 0 10px">حاسبة حجم الصفقة (مخاطرة 1%)</h2>
@@ -111,26 +111,49 @@ h1{margin:0;font-size:28px}h1 span{color:var(--gold)}
   <b>تنبيه المخاطر:</b> هذه المنصة أداة تحليل وإشارات لأغراض تعليمية ومعلوماتية فقط، وليست نصيحة مالية ولا بروكراً — المنصة لا تستقبل إيداعات ولا تحتفظ بأموال أي عميل، والتنفيذ يكون دائماً في حسابك الخاص عند البروكر الذي تختاره (مثل Exness / MT5). التداول في الأسواق المالية ينطوي على خطر خسارة رأس المال كاملاً، والأداء السابق لا يضمن أي نتيجة مستقبلية. لا تتداول أبداً بمال لا تستطيع تحمّل خسارته.
 </div>
 <script>
-const BASE='https://data-api.binance.vision';
-const SYMBOLS=['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT','PAXGUSDT','EURUSDT'];
-const NAMES={PAXGUSDT:'الذهب GOLD',EURUSDT:'EUR/USD'};
+const BN='https://data-api.binance.vision', OKX='https://www.okx.com';
+const PAIRS=[
+ {id:'BTCUSDT',src:'BN',label:'BTC/USDT',group:'🪙 الكريبتو',tv:'BINANCE:BTCUSDT'},
+ {id:'ETHUSDT',src:'BN',label:'ETH/USDT',group:'🪙 الكريبتو',tv:'BINANCE:ETHUSDT'},
+ {id:'SOLUSDT',src:'BN',label:'SOL/USDT',group:'🪙 الكريبتو',tv:'BINANCE:SOLUSDT'},
+ {id:'BNBUSDT',src:'BN',label:'BNB/USDT',group:'🪙 الكريبتو',tv:'BINANCE:BNBUSDT'},
+ {id:'XRPUSDT',src:'BN',label:'XRP/USDT',group:'🪙 الكريبتو',tv:'BINANCE:XRPUSDT'},
+ {id:'DOGEUSDT',src:'BN',label:'DOGE/USDT',group:'🪙 الكريبتو',tv:'BINANCE:DOGEUSDT'},
+ {id:'XAU-USDT-SWAP',src:'OKX',label:'الذهب XAU/USD',group:'🥇 المعادن والطاقة',tv:'OANDA:XAUUSD'},
+ {id:'CL-USDT-SWAP',src:'OKX',label:'النفط الخام WTI',group:'🥇 المعادن والطاقة',tv:'TVC:USOIL'},
+ {id:'EURUSDT',src:'BN',label:'EUR/USD',group:'💱 الفوركس',tv:'FX:EURUSD'},
+ {id:'GBPUSDT',src:'BN',label:'GBP/USD',group:'💱 الفوركس',tv:'FX:GBPUSD'},
+ {id:'AUDUSDT',src:'BN',label:'AUD/USD',group:'💱 الفوركس',tv:'FX:AUDUSD'}
+];
+const OKXBAR={'15m':'15m','1h':'1H','4h':'4H'};
 let TF='1h';
 const ema=(v,p)=>{const k=2/(p+1);const o=[v[0]];for(let i=1;i<v.length;i++)o.push(v[i]*k+o[i-1]*(1-k));return o};
 function rsi(c,p=14){let g=[],l=[];for(let i=1;i<c.length;i++){const d=c[i]-c[i-1];g.push(Math.max(d,0));l.push(Math.max(-d,0))}let ag=g.slice(0,p).reduce((a,b)=>a+b,0)/p,al=l.slice(0,p).reduce((a,b)=>a+b,0)/p;let val=50;for(let i=p;i<g.length;i++){ag=(ag*(p-1)+g[i])/p;al=(al*(p-1)+l[i])/p;val=100-100/(1+(al?ag/al:100))}return val}
 function macdBull(c){const e12=ema(c,12),e26=ema(c,26);const line=c.map((_,i)=>e12[i]-e26[i]);const sig=ema(line,9);return line[line.length-1]>sig[sig.length-1]}
 function atr(h,l,c,p=14){let trs=[];for(let i=1;i<c.length;i++)trs.push(Math.max(h[i]-l[i],Math.abs(h[i]-c[i-1]),Math.abs(l[i]-c[i-1])));let a=trs.slice(0,p).reduce((x,y)=>x+y,0)/p;for(let i=p;i<trs.length;i++)a=(a*(p-1)+trs[i])/p;return a}
 const fmt=n=>n>=100?n.toFixed(2):n>=1?n.toFixed(4):n.toFixed(6);
-async function biasTF(sym,tf){
-  try{const r=await fetch(`${BASE}/api/v3/klines?symbol=${sym}&interval=${tf}&limit=60`);const rows=await r.json();
-  const c=rows.map(x=>+x[4]);const e9=ema(c,9),e21=ema(c,21);const d=e9[e9.length-1]-e21[e21.length-1];
+async function candlesOf(p,tf,limit){
+  if(p.src==='BN'){const r=await fetch(`${BN}/api/v3/klines?symbol=${p.id}&interval=${tf}&limit=${limit}`);const rows=await r.json();
+    return rows.map(x=>({o:+x[1],h:+x[2],l:+x[3],c:+x[4]}))}
+  const r=await fetch(`${OKX}/api/v5/market/candles?instId=${p.id}&bar=${OKXBAR[tf]}&limit=${limit}`);const j=await r.json();
+  return j.data.map(x=>({o:+x[1],h:+x[2],l:+x[3],c:+x[4]})).reverse();
+}
+async function priceOf(p){
+  if(p.src==='BN'){const r=await fetch(`${BN}/api/v3/ticker/price?symbol=${p.id}`);const j=await r.json();return +j.price}
+  const r=await fetch(`${OKX}/api/v5/market/ticker?instId=${p.id}`);const j=await r.json();return +j.data[0].last;
+}
+async function biasTF(p,tf){
+  try{const rows=await candlesOf(p,tf,60);const c=rows.map(x=>x.c);const e9=ema(c,9),e21=ema(c,21);const d=e9[e9.length-1]-e21[e21.length-1];
   return Math.abs(d)/c[c.length-1]<0.0004?'•':(d>0?'▲':'▼')}catch(e){return '?'}}
-async function stats24(sym){
-  try{const r=await fetch(`${BASE}/api/v3/ticker/24hr?symbol=${sym}`);const t=await r.json();
-  return {chg:+t.priceChangePercent,hi:+t.highPrice,lo:+t.lowPrice}}catch(e){return null}}
-async function analyse(sym){
-  const r=await fetch(`${BASE}/api/v3/klines?symbol=${sym}&interval=${TF}&limit=200`);
-  const rows=await r.json();
-  const c=rows.map(x=>+x[4]),h=rows.map(x=>+x[2]),l=rows.map(x=>+x[3]);
+async function stats24(p){
+  try{
+   if(p.src==='BN'){const r=await fetch(`${BN}/api/v3/ticker/24hr?symbol=${p.id}`);const t=await r.json();return {chg:+t.priceChangePercent,hi:+t.highPrice,lo:+t.lowPrice}}
+   const r=await fetch(`${OKX}/api/v5/market/ticker?instId=${p.id}`);const j=await r.json();const t=j.data[0];const open=+t.open24h;
+   return {chg:100*(+t.last-open)/open,hi:+t.high24h,lo:+t.low24h};
+  }catch(e){return null}}
+async function analyse(p){
+  const rows=await candlesOf(p,TF,200);
+  const c=rows.map(x=>x.c),h=rows.map(x=>x.h),l=rows.map(x=>x.l);
   const price=c[c.length-1],e9=ema(c,9),e21=ema(c,21),R=rsi(c),bull=macdBull(c),A=atr(h,l,c);
   let s=0; s+= e9[e9.length-1]>e21[e21.length-1]?30:-30; s+= bull?25:-25;
   if(R>50&&R<70)s+=20; else if(R>=70)s+=5; else if(R>30)s-=20; else s-=5;
@@ -138,8 +161,8 @@ async function analyse(sym){
   let levels=null;
   if(dir!=='NEUTRAL'){const sl=dir==='BUY'?price-1.5*A:price+1.5*A;const risk=Math.abs(price-sl);
     levels={entry:price,sl,tp1:dir==='BUY'?price+risk*1.5:price-risk*1.5,tp2:dir==='BUY'?price+risk*2.5:price-risk*2.5,tp3:dir==='BUY'?price+risk*4:price-risk*4}}
-  const st=await stats24(sym);
-  const biases={}; for(const tf of ['15m','1h','4h']) biases[tf]= tf===TF ? (e9[e9.length-1]>e21[e21.length-1]?'▲':'▼') : await biasTF(sym,tf);
+  const st=await stats24(p);
+  const biases={}; for(const tf of ['15m','1h','4h']) biases[tf]= tf===TF ? (e9[e9.length-1]>e21[e21.length-1]?'▲':'▼') : await biasTF(p,tf);
   const upT=e9[e9.length-1]>e21[e21.length-1];
   const reasons=[
     upT?'الاتجاه قصير المدى صاعد (EMA9 فوق EMA21)':'الاتجاه قصير المدى هابط (EMA9 تحت EMA21)',
@@ -148,12 +171,19 @@ async function analyse(sym){
     'توافق الفريمات: '+Object.values(biases).filter(b=>b===(dir==='BUY'?'▲':dir==='SELL'?'▼':'·')).length+'/3 مع اتجاه الصفقة',
     'التذبذب (ATR) مضبوط عليه الوقف والأهداف — الوقف 1.5×ATR'
   ];
-  if(sym==='PAXGUSDT') reasons.push('الذهب عبر PAXG — توكن مدعوم بالذهب الحقيقي وكيتبع سعر XAU/USD');
-  if(sym==='EURUSDT') reasons.push('اليورو/دولار عبر EUR/USDT في Binance — نفس حركة EUR/USD تقريباً');
-  return {sym,price,R,dir,strength:Math.abs(s),levels,st,biases,reasons};
+  if(p.src==='OKX') reasons.push('بيانات '+p.label+' من OKX — سوق مباشر، نفس الأسعار العالمية');
+  if(p.src==='BN'&&p.group.includes('فوركس')) reasons.push(p.label+' عبر '+p.id.replace('USDT','/USDT')+' في Binance — نفس حركة الزوج العالمي');
+  return {p,price,R,dir,strength:Math.abs(s),levels,st,biases,reasons};
 }
+const TRADES={};
+function copyTrade(id,btn){
+  const t=TRADES[id]; if(!t)return;
+  const done=()=>{btn.textContent='✅ تم النسخ — الصقها في MT5 أو أي محادثة';setTimeout(()=>btn.textContent='📋 نسخ الصفقة',2200)};
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).then(done).catch(()=>{fallbackCopy(t);done()})}else{fallbackCopy(t);done()}
+}
+function fallbackCopy(t){const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(ta)}
 function card(x){
-  const name=NAMES[x.sym]||x.sym.replace('USDT','/USDT');
+  const name=x.p.label;
   const badge=x.dir==='BUY'?'<span class="badge buy">شراء BUY</span>':x.dir==='SELL'?'<span class="badge sell">بيع SELL</span>':'<span class="badge neu">حياد — لا صفقة</span>';
   let rows=`<div class="row"><span>السعر الحالي</span><b>$${fmt(x.price)}</b></div>
   ${x.st?`<div class="row"><span>تغيّر 24 ساعة</span><b style="color:${x.st.chg>=0?'#86efac':'#fca5a5'}">${x.st.chg>=0?'+':''}${x.st.chg.toFixed(2)}%</b></div>
@@ -174,29 +204,39 @@ function card(x){
     <div style="font-size:12px;color:var(--mut);margin-top:6px">موقع السعر بين الوقف والهدف الأخير:</div>
     <div style="position:relative;height:8px;background:linear-gradient(90deg,#7f1d1d,#334155,#14532d);border-radius:99px;margin:4px 0 8px"><i style="position:absolute;top:-3px;left:calc(${pos}% - 2px);width:4px;height:14px;background:var(--gold);border-radius:2px"></i></div>
     <div style="font-size:13px;line-height:1.9;background:#0d1420;border:1px dashed var(--line);border-radius:10px;padding:8px 10px"><b style="color:var(--gold)">لماذا هاد الاتجاه؟</b><br>${x.reasons.map(r=>'• '+r).join('<br>')}</div>
-    <div class="row"><span>الشارت</span><b><a target="_blank" style="color:#93c5fd" href="https://www.tradingview.com/symbols/${x.sym.replace('USDT','USDT')}/?exchange=BINANCE">TradingView ↗</a></b></div>`;
-    const txt=encodeURIComponent(`📊 صفقة ${name} — ${x.dir}\nالدخول: $${fmt(L.entry)}\nوقف الخسارة: $${fmt(L.sl)}\nالأهداف: $${fmt(L.tp1)} / $${fmt(L.tp2)} / $${fmt(L.tp3)}\nقوة الإشارة: ${x.strength}% — TradePro Signals`);
-    share=`<div class="share"><a class="wa" target="_blank" href="https://wa.me/?text=${txt}">شارك عبر واتساب</a><a class="tg" target="_blank" href="https://t.me/share/url?url=&text=${txt}">Telegram</a></div>
-    <button onclick="registerTrade('${x.sym}','${x.dir}',${L.entry},${L.sl},${L.tp1})" style="width:100%;margin-top:8px;padding:9px;border-radius:10px;border:1px solid var(--gold);background:transparent;color:var(--gold);cursor:pointer;font-weight:600">📝 سجّل ورقياً — اختبار أمامي</button>`;
+    <div class="row"><span>الشارت</span><b><a target="_blank" style="color:#93c5fd" href="https://www.tradingview.com/chart/?symbol=${x.p.tv}">TradingView ↗</a></b></div>`;
+    const plain=`📊 صفقة ${name} — ${x.dir} (فريم ${TF})
+الدخول: $${fmt(L.entry)}
+وقف الخسارة: $${fmt(L.sl)}
+الأهداف: $${fmt(L.tp1)} / $${fmt(L.tp2)} / $${fmt(L.tp3)}
+قوة الإشارة: ${x.strength}% — TradePro Signals`;
+    TRADES[x.p.id]=plain;
+    const txt=encodeURIComponent(plain);
+    share=`<button onclick="copyTrade('${x.p.id}',this)" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;border:none;background:var(--gold);color:#111;cursor:pointer;font-weight:700">📋 نسخ الصفقة</button>
+    <div class="share"><a class="wa" target="_blank" href="https://wa.me/?text=${txt}">شارك عبر واتساب</a><a class="tg" target="_blank" href="https://t.me/share/url?url=&text=${txt}">Telegram</a></div>
+    <button onclick="registerTrade('${x.p.id}','${x.dir}',${L.entry},${L.sl},${L.tp1})" style="width:100%;margin-top:8px;padding:9px;border-radius:10px;border:1px solid var(--gold);background:transparent;color:var(--gold);cursor:pointer;font-weight:600">📝 سجّل ورقياً — اختبار أمامي</button>`;
   }
-  return `<article class="card"><h2>${name} ${badge}</h2><div class="price" data-sym="${x.sym}">$${fmt(x.price)}</div>${rows}${share}</article>`;
+  return `<article class="card"><h2>${name} ${badge}</h2><div class="price" data-sym="${x.p.id}">$${fmt(x.price)}</div>${rows}${share}</article>`;
 }
 async function load(){
   document.getElementById('status').textContent='جارٍ جلب الأسعار الحقيقية من السوق…';
   try{
-    const out=[]; for(const s of SYMBOLS) out.push(await analyse(s));
-    document.getElementById('grid').innerHTML=out.map(card).join('');
-    document.getElementById('status').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar-MA')+' — المصدر: Binance (بيانات حقيقية مباشرة) — يتجدد تلقائياً كل 60 ثانية';
+    const out=[]; for(const p of PAIRS) out.push(await analyse(p));
+    let html='', lastGroup='';
+    for(const x of out){ if(x.p.group!==lastGroup){html+=`<div style="grid-column:1/-1;font-size:19px;font-weight:700;color:var(--gold);margin-top:10px">${x.p.group}</div>`;lastGroup=x.p.group} html+=card(x) }
+    document.getElementById('grid').innerHTML=html;
+    document.getElementById('status').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar-MA')+' — المصادر: Binance + OKX (بيانات حقيقية مباشرة) — يتجدد تلقائياً كل 60 ثانية';
   }catch(e){document.getElementById('status').textContent='تعذّر جلب البيانات الآن — تحقق من الاتصال وحاول مجدداً.'}
 }
 document.querySelectorAll('#tf button[data-tf]').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tf button').forEach(x=>x.classList.remove('on'));b.classList.add('on');TF=b.dataset.tf;load()});
 document.getElementById('refresh').onclick=load;
 let PRICES={};
 async function tickPrices(){
-  try{const r=await fetch(`${BASE}/api/v3/ticker/price`);const all=await r.json();all.forEach(t=>PRICES[t.symbol]=+t.price);
+  try{ for(const p of PAIRS){ PRICES[p.id]=await priceOf(p) }
   document.querySelectorAll('[data-sym]').forEach(el=>{if(PRICES[el.dataset.sym])el.textContent='$'+fmt(PRICES[el.dataset.sym])});updateJournal()}catch(e){}
 }
 let JOURNAL=[];
+const labelOf=id=>{const p=PAIRS.find(q=>q.id===id);return p?p.label:id};
 function registerTrade(sym,dir,entry,sl,tp){
   JOURNAL.push({sym,dir,entry,sl,tp,status:'مفتوحة',res:''}); renderJournal();
   document.getElementById('journal').scrollIntoView({behavior:'smooth',block:'center'});
@@ -213,7 +253,7 @@ function renderJournal(){
   const el=document.getElementById('journal'); if(!JOURNAL.length)return;
   const closed=JOURNAL.filter(t=>t.status!=='مفتوحة'); const wins=closed.filter(t=>t.res.startsWith('+')).length;
   const net=closed.reduce((a,t)=>a+parseFloat(t.res),0);
-  const rows=JOURNAL.map(t=>`<div class="row"><span>${t.sym.replace('USDT','')} ${t.dir==='BUY'?'شراء':'بيع'} @ $${fmt(t.entry)}</span><b>${t.status} ${t.res}</b></div>`).join('');
+  const rows=JOURNAL.map(t=>`<div class="row"><span>${labelOf(t.sym)} ${t.dir==='BUY'?'شراء':'بيع'} @ $${fmt(t.entry)}</span><b>${t.status} ${t.res}</b></div>`).join('');
   el.innerHTML=rows+`<div style="padding-top:8px;color:var(--gold)">المسكر: ${closed.length} · نسبة الفوز: ${closed.length?Math.round(100*wins/closed.length):0}% · صافي: ${net.toFixed(1)}R</div>`;
 }
 async function pulse(){
@@ -221,14 +261,14 @@ async function pulse(){
     const fg=await (await fetch('https://api.alternative.me/fng/?limit=1')).json();
     const fgv=fg.data[0];
     let parts=[`الخوف والطمع: <b style="color:var(--gold)">${fgv.value} — ${fgv.value_classification}</b>`];
-    for(const s of SYMBOLS.slice(0,6)){
+    for(const p of PAIRS.filter(q=>q.group.includes('كريبتو'))){
       try{
-      const inst=s.replace('USDT','-USDT-SWAP');
-      const fr=await (await fetch(`https://www.okx.com/api/v5/public/funding-rate?instId=${inst}`)).json();
-      const oi=await (await fetch(`https://www.okx.com/api/v5/public/open-interest?instType=SWAP&instId=${inst}`)).json();
+      const inst=p.id.replace('USDT','-USDT-SWAP');
+      const fr=await (await fetch(`${OKX}/api/v5/public/funding-rate?instId=${inst}`)).json();
+      const oi=await (await fetch(`${OKX}/api/v5/public/open-interest?instType=SWAP&instId=${inst}`)).json();
       const f=parseFloat(fr.data[0].fundingRate)*100, o=parseFloat(oi.data[0].oiUsd)/1e9;
       const read=f>=0.05?'ازدحام شراء ⚠️':(f<=-0.05?'ازدحام بيع ⚠️':'تمركز متوازن');
-      parts.push(`${s.replace('USDT','')}: Funding ${f>=0?'+':''}${f.toFixed(4)}% · OI $${o.toFixed(2)}B · ${read}`);
+      parts.push(`${p.label.split('/')[0]}: Funding ${f>=0?'+':''}${f.toFixed(4)}% · OI $${o.toFixed(2)}B · ${read}`);
       }catch(e){}
     }
     document.getElementById('pulse').innerHTML=parts.join('<br>');
@@ -243,7 +283,7 @@ function candleCountdown(){
 async function funding(){
   try{const out=[];
   for(const inst of ['BTC-USDT-SWAP','ETH-USDT-SWAP']){
-    const r=await fetch(`https://www.okx.com/api/v5/public/funding-rate?instId=${inst}`);const j=await r.json();
+    const r=await fetch(`${OKX}/api/v5/public/funding-rate?instId=${inst}`);const j=await r.json();
     const fr=parseFloat(j.data[0].fundingRate)*100; out.push(`${inst.split('-')[0]} Funding: ${fr>=0?'+':''}${fr.toFixed(4)}%`);
   }
   const el=document.getElementById('funding'); if(el) el.textContent=' · '+out.join(' · ')+' (OKX)';

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradePro Signals — Live Trading Signals | صفقات تداول حقيقية مباشرة</title>
+<meta name="description" content="TradePro Signals: live crypto trading signals with entry, stop loss and three take-profit targets, computed from real Binance market data with EMA, RSI, MACD and ATR. Educational tool — not financial advice.">
+<meta property="og:title" content="TradePro Signals — Live Trading Signals">
+<meta property="og:description" content="Complete live trade setups: entry, stop loss, TP1/TP2/TP3 and signal strength, from real market data.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"TradePro Signals","applicationCategory":"FinanceApplication","operatingSystem":"Web","description":"Live trading signals computed from real Binance market data (EMA, RSI, MACD, ATR) with entry, stop loss and take profit levels.","offers":{"@type":"Offer","price":"29","priceCurrency":"USD"}}</script>
+<style>
+:root{--bg:#0b0f17;--card:#131a28;--line:#22304a;--gold:#f5b942;--green:#22c55e;--red:#ef4444;--txt:#e8edf5;--mut:#8fa1b8}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--txt)}
+header{padding:22px 16px 8px;text-align:center}
+h1{margin:0;font-size:28px}h1 span{color:var(--gold)}
+.sub{color:var(--mut);margin:6px 0 0;font-size:14px}
+.controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px}
+.controls button{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:8px 16px;cursor:pointer;font-size:14px}
+.controls button.on{border-color:var(--gold);color:var(--gold)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;padding:6px 16px 20px;max-width:1200px;margin:auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.card h2{margin:0 0 4px;font-size:20px;display:flex;justify-content:space-between;align-items:center}
+.price{font-size:24px;font-weight:700}
+.badge{font-size:13px;padding:4px 12px;border-radius:999px;font-weight:700}
+.buy{background:#14532d;color:#86efac}.sell{background:#7f1d1d;color:#fca5a5}.neu{background:#334155;color:#cbd5e1}
+.row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #1e293b;font-size:14px}
+.row b{font-variant-numeric:tabular-nums}
+.meter{height:8px;background:#1e293b;border-radius:99px;overflow:hidden;margin:8px 0}
+.meter i{display:block;height:100%;background:var(--gold)}
+.share{display:flex;gap:8px;margin-top:12px}
+.share a{flex:1;text-align:center;text-decoration:none;padding:9px;border-radius:10px;font-size:14px;font-weight:600}
+.wa{background:#14532d;color:#86efac}.tg{background:#1e3a5f;color:#93c5fd}
+.disc{max-width:900px;margin:10px auto 30px;padding:14px 18px;color:var(--mut);font-size:13px;line-height:1.9;border:1px dashed var(--line);border-radius:12px}
+#status{text-align:center;color:var(--mut);font-size:13px;padding:4px}
+</style>
+</head>
+<body>
+<header>
+  <h1>TradePro <span>Signals</span></h1>
+  <p class="sub">صفقات مبنية على أسعار السوق الحقيقية مباشرة — دخول، وقف خسارة، وثلاثة أهداف لكل صفقة</p>
+</header>
+<div class="controls" id="tf">
+  <button data-tf="15m">15 دقيقة</button>
+  <button data-tf="1h" class="on">ساعة</button>
+  <button data-tf="4h">4 ساعات</button>
+  <button id="refresh">↻ تحديث الآن</button>
+</div>
+<div id="status">جارٍ جلب الأسعار الحقيقية من السوق…</div>
+<main class="grid" id="grid"></main>
+<section style="max-width:900px;margin:0 auto 18px;padding:0 16px;line-height:2">
+  <h2 style="text-align:center">كيفاش تستعمل المنصة — خطوة بخطوة</h2>
+  <ol>
+    <li><b>افتح حسابك</b> عند البروكر اللي كتختار (مثلاً Exness / MT5) — المنصة ما كتستقبل حتى إيداع.</li>
+    <li><b>شوف الصفقة:</b> الاتجاه (شراء/بيع)، الدخول، وقف الخسارة، والأهداف الثلاثة.</li>
+    <li><b>احسب الحجم</b> بحاسبة الحجم: مخاطرة 1% من رأس المال كحد أقصى في الصفقة الواحدة.</li>
+    <li><b>نفّذ ودوّن:</b> دخل غير إلا كانت قوة الإشارة عالية والاتجاه العام موافق، ودوّن النتيجة في سجلّك.</li>
+    <li><b>القاعدة الذهبية:</b> وقف الخسارة إجباري — حتى أحسن استراتيجية في العالم عندها صفقات خاسرة، وإدارة رأس المال هي اللي كتخليك تبقى في السوق.</li>
+  </ol>
+</section>
+<div class="disc">
+  <b>أداء مقاس بصدق:</b> في اختبار خارج العينة على بيانات Binance الحقيقية (24 إعداداً مجرّباً)، أعلى نسبة صفقات وصلت الهدف الأول كانت 60.5% (فريم الساعة، هدف صغير) وبتوقّع قريب من التعادل بعد الرسوم — لا توجد استراتيجية مؤشرات تعطي 90% أو ربحاً دائماً، وأي خدمة تدّعي ذلك تستعمل لقطات مختارة. قوة هاد المنصة هي التحليل الحي المنظم وإدارة رأس المال، لا وعود الأرباح.<br>
+  <b>تنبيه المخاطر:</b> هذه المنصة أداة تحليل وإشارات لأغراض تعليمية ومعلوماتية فقط، وليست نصيحة مالية ولا بروكراً — المنصة لا تستقبل إيداعات ولا تحتفظ بأموال أي عميل، والتنفيذ يكون دائماً في حسابك الخاص عند البروكر الذي تختاره (مثل Exness / MT5). التداول في الأسواق المالية ينطوي على خطر خسارة رأس المال كاملاً، والأداء السابق لا يضمن أي نتيجة مستقبلية. لا تتداول أبداً بمال لا تستطيع تحمّل خسارته.
+</div>
+<script>
+const BASE='https://data-api.binance.vision';
+const SYMBOLS=['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT'];
+let TF='1h';
+const ema=(v,p)=>{const k=2/(p+1);const o=[v[0]];for(let i=1;i<v.length;i++)o.push(v[i]*k+o[i-1]*(1-k));return o};
+function rsi(c,p=14){let g=[],l=[];for(let i=1;i<c.length;i++){const d=c[i]-c[i-1];g.push(Math.max(d,0));l.push(Math.max(-d,0))}let ag=g.slice(0,p).reduce((a,b)=>a+b,0)/p,al=l.slice(0,p).reduce((a,b)=>a+b,0)/p;let val=50;for(let i=p;i<g.length;i++){ag=(ag*(p-1)+g[i])/p;al=(al*(p-1)+l[i])/p;val=100-100/(1+(al?ag/al:100))}return val}
+function macdBull(c){const e12=ema(c,12),e26=ema(c,26);const line=c.map((_,i)=>e12[i]-e26[i]);const sig=ema(line,9);return line[line.length-1]>sig[sig.length-1]}
+function atr(h,l,c,p=14){let trs=[];for(let i=1;i<c.length;i++)trs.push(Math.max(h[i]-l[i],Math.abs(h[i]-c[i-1]),Math.abs(l[i]-c[i-1])));let a=trs.slice(0,p).reduce((x,y)=>x+y,0)/p;for(let i=p;i<trs.length;i++)a=(a*(p-1)+trs[i])/p;return a}
+const fmt=n=>n>=100?n.toFixed(2):n>=1?n.toFixed(4):n.toFixed(6);
+async function analyse(sym){
+  const r=await fetch(`${BASE}/api/v3/klines?symbol=${sym}&interval=${TF}&limit=200`);
+  const rows=await r.json();
+  const c=rows.map(x=>+x[4]),h=rows.map(x=>+x[2]),l=rows.map(x=>+x[3]);
+  const price=c[c.length-1],e9=ema(c,9),e21=ema(c,21),R=rsi(c),bull=macdBull(c),A=atr(h,l,c);
+  let s=0; s+= e9[e9.length-1]>e21[e21.length-1]?30:-30; s+= bull?25:-25;
+  if(R>50&&R<70)s+=20; else if(R>=70)s+=5; else if(R>30)s-=20; else s-=5;
+  const dir=s>15?'BUY':(s<-15?'SELL':'NEUTRAL');
+  let levels=null;
+  if(dir!=='NEUTRAL'){const sl=dir==='BUY'?price-1.5*A:price+1.5*A;const risk=Math.abs(price-sl);
+    levels={entry:price,sl,tp1:dir==='BUY'?price+risk*1.5:price-risk*1.5,tp2:dir==='BUY'?price+risk*2.5:price-risk*2.5,tp3:dir==='BUY'?price+risk*4:price-risk*4}}
+  return {sym,price,R,dir,strength:Math.abs(s),levels};
+}
+function card(x){
+  const name=x.sym.replace('USDT','/USDT');
+  const badge=x.dir==='BUY'?'<span class="badge buy">شراء BUY</span>':x.dir==='SELL'?'<span class="badge sell">بيع SELL</span>':'<span class="badge neu">حياد — لا صفقة</span>';
+  let rows=`<div class="row"><span>السعر الحالي</span><b>$${fmt(x.price)}</b></div>
+  <div class="row"><span>RSI</span><b>${x.R.toFixed(1)}</b></div>
+  <div class="row"><span>قوة الإشارة</span><b>${x.strength}%</b></div>
+  <div class="meter"><i style="width:${x.strength}%"></i></div>`;
+  let share='';
+  if(x.levels){const L=x.levels;
+    rows+=`<div class="row"><span>الدخول Entry</span><b>$${fmt(L.entry)}</b></div>
+    <div class="row"><span>وقف الخسارة SL</span><b style="color:#fca5a5">$${fmt(L.sl)}</b></div>
+    <div class="row"><span>الهدف 1 TP1</span><b style="color:#86efac">$${fmt(L.tp1)}</b></div>
+    <div class="row"><span>الهدف 2 TP2</span><b style="color:#86efac">$${fmt(L.tp2)}</b></div>
+    <div class="row"><span>الهدف 3 TP3</span><b style="color:#86efac">$${fmt(L.tp3)}</b></div>`;
+    const txt=encodeURIComponent(`📊 صفقة ${name} — ${x.dir}\nالدخول: $${fmt(L.entry)}\nوقف الخسارة: $${fmt(L.sl)}\nالأهداف: $${fmt(L.tp1)} / $${fmt(L.tp2)} / $${fmt(L.tp3)}\nقوة الإشارة: ${x.strength}% — TradePro Signals`);
+    share=`<div class="share"><a class="wa" target="_blank" href="https://wa.me/?text=${txt}">شارك عبر واتساب</a><a class="tg" target="_blank" href="https://t.me/share/url?url=&text=${txt}">Telegram</a></div>`;
+  }
+  return `<article class="card"><h2>${name} ${badge}</h2><div class="price" data-sym="${x.sym}">$${fmt(x.price)}</div>${rows}${share}</article>`;
+}
+async function load(){
+  document.getElementById('status').textContent='جارٍ جلب الأسعار الحقيقية من السوق…';
+  try{
+    const out=[]; for(const s of SYMBOLS) out.push(await analyse(s));
+    document.getElementById('grid').innerHTML=out.map(card).join('');
+    document.getElementById('status').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar-MA')+' — المصدر: Binance (بيانات حقيقية مباشرة) — يتجدد تلقائياً كل 60 ثانية';
+  }catch(e){document.getElementById('status').textContent='تعذّر جلب البيانات الآن — تحقق من الاتصال وحاول مجدداً.'}
+}
+document.querySelectorAll('#tf button[data-tf]').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tf button').forEach(x=>x.classList.remove('on'));b.classList.add('on');TF=b.dataset.tf;load()});
+document.getElementById('refresh').onclick=load;
+async function tickPrices(){
+  try{const r=await fetch(`${BASE}/api/v3/ticker/price`);const all=await r.json();const map={};all.forEach(t=>map[t.symbol]=+t.price);
+  document.querySelectorAll('[data-sym]').forEach(el=>{if(map[el.dataset.sym])el.textContent='$'+fmt(map[el.dataset.sym])})}catch(e){}
+}
+load(); setInterval(load,60000); setInterval(tickPrices,5000);
+</script>
+</body>
+</html>

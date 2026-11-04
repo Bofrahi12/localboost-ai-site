@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>المحرك المجاني — استوديو الصور | Open Higgsfield AI</title>
+<style>
+  :root{--bg:#0b0b10;--card:#15151d;--line:#262633;--txt:#f2f2f5;--mut:#9a9aad;--acc:#ffd34d;--acc2:#7c5cff}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,'Segoe UI',Tahoma,sans-serif}
+  header{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(11,11,16,.92);backdrop-filter:blur(6px);z-index:5}
+  header h1{font-size:17px;margin:0} header .badge{background:var(--acc);color:#111;font-weight:700;font-size:11px;padding:3px 8px;border-radius:99px}
+  header a{margin-inline-start:auto;color:var(--mut);text-decoration:none;font-size:13px;border:1px solid var(--line);padding:7px 12px;border-radius:10px}
+  main{max-width:860px;margin:0 auto;padding:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:16px}
+  label{display:block;font-size:13px;color:var(--mut);margin:12px 0 6px}
+  textarea{width:100%;min-height:84px;background:#0e0e14;border:1px solid var(--line);border-radius:12px;color:var(--txt);padding:12px;font-size:15px;resize:vertical}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{border:1px solid var(--line);background:#0e0e14;color:var(--txt);padding:9px 14px;border-radius:99px;cursor:pointer;font-size:13px}
+  .chip.on{border-color:var(--acc);color:var(--acc)}
+  select{background:#0e0e14;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:9px;font-size:14px}
+  .gen{width:100%;margin-top:16px;background:linear-gradient(90deg,var(--acc),#ffb84d);color:#111;border:0;font-weight:800;font-size:16px;padding:14px;border-radius:12px;cursor:pointer}
+  .gen:disabled{opacity:.55}
+  .hint{font-size:12px;color:var(--mut);line-height:1.7}
+  #stage{display:none;text-align:center}
+  #stage img{max-width:100%;border-radius:12px;border:1px solid var(--line)}
+  .actions{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+  .actions button,.actions a{border:1px solid var(--line);background:#0e0e14;color:var(--txt);padding:10px 16px;border-radius:10px;cursor:pointer;font-size:14px;text-decoration:none}
+  #hist{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+  #hist img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;border:1px solid var(--line);cursor:pointer}
+  .spin{display:inline-block;width:16px;height:16px;border:2px solid #111;border-top-color:transparent;border-radius:50%;vertical-align:-3px;animation:s 0.8s linear infinite}
+  @keyframes s{to{transform:rotate(360deg)}}
+  .flow-btn{display:inline-block;background:var(--acc2);color:#fff;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:12px;margin-top:8px}
+  .chk{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--txt);margin-top:12px}
+</style>
+</head>
+<body>
+<header>
+  <span class="badge">مجاني 100%</span>
+  <h1>استوديو الصور — المحرك المجاني</h1>
+  <a href="./">→ التطبيق الرئيسي</a>
+</header>
+<main>
+  <div class="card">
+    <label for="prompt">شنو بغيتي تولّد؟ (كتب بالعربية ولا الإنجليزية)</label>
+    <textarea id="prompt" placeholder="مثال: قرية مغربية جبلية في الغروب، إضاءة سينمائية، واقعي جداً"></textarea>
+    <label>المقاس</label>
+    <div class="row" id="sizes">
+      <button class="chip" data-w="576" data-h="1024">عمودي 9:16</button>
+      <button class="chip on" data-w="1024" data-h="576">عريض 16:9</button>
+      <button class="chip" data-w="1024" data-h="1024">مربع 1:1</button>
+    </div>
+    <label for="model">الموديل</label>
+    <select id="model">
+      <option value="flux">Flux — جودة أعلى</option>
+      <option value="turbo">Turbo — أسرع</option>
+    </select>
+    <label class="chk"><input type="checkbox" id="enhance" checked /> تحسين البرومبت تلقائياً (كيترجم وكيطوّر الوصف)</label>
+    <button class="gen" id="go">🎨 ولّد الصورة — مجاناً</button>
+    <p class="hint">بلا مفتاح وبلا حساب: التوليد كيتم عبر Pollinations المفتوح. الجودة مزيانة للمسودات والأفكار والأغلفة الأولية؛ النتيجة الاحترافية النهائية كتبقى من محركات التطبيق الرئيسي (Muapi).</p>
+  </div>
+
+  <div class="card" id="stage">
+    <img id="out" alt="الصورة المولدة" />
+    <div class="actions">
+      <button id="dl">⬇️ تحميل</button>
+      <a id="full" href="#" target="_blank" rel="noopener">فتح بالحجم الكامل</a>
+      <button id="again">🎲 نسخة أخرى</button>
+    </div>
+    <p class="hint" id="seedline"></p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin:0 0 6px">📚 توليدات هاد الجلسة</h3>
+    <div id="hist"><p class="hint" id="histEmpty">حتى صورة بعد — ولّد أول وحدة وغتبان هنا.</p></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin:0 0 6px">🎬 الفيديو المجاني</h3>
+    <p class="hint">الفيديو الاحترافي المجاني الحقيقي اللي عندك هو <b>Google Flow</b>: 50 كريديت كيتجددو كل نهار مع 14:38 على حسابك، وبـ Veo 3.1 Lite (10 كريديت للمقطع) كيدير ليك 5 مقاطع في النهار بلا فلوس — هو المحرك اللي ولّدنا بيه مقطع حمادي. الفيديو داخل التطبيق الرئيسي كيخدم بـ Muapi على حساب الرصيد.</p>
+    <a class="flow-btn" href="https://labs.google/fx/tools/flow" target="_blank" rel="noopener">افتح Google Flow</a>
+  </div>
+</main>
+<script>
+  var W=1024,H=576,lastUrl='';
+  document.getElementById('sizes').addEventListener('click',function(e){
+    var b=e.target.closest('.chip'); if(!b) return;
+    document.querySelectorAll('#sizes .chip').forEach(function(c){c.classList.remove('on')});
+    b.classList.add('on'); W=+b.dataset.w; H=+b.dataset.h;
+  });
+  function generate(){
+    var p=document.getElementById('prompt').value.trim();
+    if(!p){ alert('كتب الوصف أولاً'); return; }
+    var btn=document.getElementById('go');
+    btn.disabled=true; btn.innerHTML='<span class="spin"></span> كيتولّد... (تقدر تاخد حتى 30 ثانية)';
+    var seed=Math.floor(Math.random()*999999);
+    var m=document.getElementById('model').value;
+    var en=document.getElementById('enhance').checked;
+    var url='https://image.pollinations.ai/prompt/'+encodeURIComponent(p)+'?width='+W+'&height='+H+'&model='+m+'&seed='+seed+'&nologo=true'+(en?'&enhance=true':'');
+    var img=document.getElementById('out');
+    var stage=document.getElementById('stage');
+    stage.style.display='block';
+    img.onload=function(){
+      btn.disabled=false; btn.textContent='🎨 ولّد الصورة — مجاناً';
+      lastUrl=url;
+      document.getElementById('full').href=url;
+      document.getElementById('seedline').textContent='Seed: '+seed+' · '+m+' · '+W+'×'+H;
+      var he=document.getElementById('histEmpty'); if(he) he.remove();
+      var t=document.createElement('img'); t.src=url; t.alt=p;
+      t.onclick=function(){ img.src=url; document.getElementById('full').href=url; lastUrl=url; window.scrollTo({top:0,behavior:'smooth'}); };
+      document.getElementById('hist').prepend(t);
+    };
+    img.onerror=function(){ btn.disabled=false; btn.textContent='🎨 ولّد الصورة — مجاناً'; alert('التوليد تعثّر — عاود المحاولة'); };
+    img.src=url;
+  }
+  document.getElementById('go').addEventListener('click',generate);
+  document.getElementById('again').addEventListener('click',generate);
+  document.getElementById('dl').addEventListener('click',function(){
+    if(!lastUrl) return;
+    fetch(lastUrl).then(function(r){return r.blob()}).then(function(b){
+      var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='free-studio-'+Date.now()+'.jpg'; a.click();
+      setTimeout(function(){URL.revokeObjectURL(a.href)},4000);
+    }).catch(function(){ window.open(lastUrl,'_blank'); });
+  });
+</script>
+</body>
+</html>

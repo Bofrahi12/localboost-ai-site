@@ -107,7 +107,8 @@ h1{margin:0;font-size:28px}h1 span{color:var(--gold)}
 </div>
 <script>
 const BASE='https://data-api.binance.vision';
-const SYMBOLS=['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT'];
+const SYMBOLS=['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT','PAXGUSDT','EURUSDT'];
+const NAMES={PAXGUSDT:'الذهب GOLD',EURUSDT:'EUR/USD'};
 let TF='1h';
 const ema=(v,p)=>{const k=2/(p+1);const o=[v[0]];for(let i=1;i<v.length;i++)o.push(v[i]*k+o[i-1]*(1-k));return o};
 function rsi(c,p=14){let g=[],l=[];for(let i=1;i<c.length;i++){const d=c[i]-c[i-1];g.push(Math.max(d,0));l.push(Math.max(-d,0))}let ag=g.slice(0,p).reduce((a,b)=>a+b,0)/p,al=l.slice(0,p).reduce((a,b)=>a+b,0)/p;let val=50;for(let i=p;i<g.length;i++){ag=(ag*(p-1)+g[i])/p;al=(al*(p-1)+l[i])/p;val=100-100/(1+(al?ag/al:100))}return val}
@@ -134,10 +135,20 @@ async function analyse(sym){
     levels={entry:price,sl,tp1:dir==='BUY'?price+risk*1.5:price-risk*1.5,tp2:dir==='BUY'?price+risk*2.5:price-risk*2.5,tp3:dir==='BUY'?price+risk*4:price-risk*4}}
   const st=await stats24(sym);
   const biases={}; for(const tf of ['15m','1h','4h']) biases[tf]= tf===TF ? (e9[e9.length-1]>e21[e21.length-1]?'▲':'▼') : await biasTF(sym,tf);
-  return {sym,price,R,dir,strength:Math.abs(s),levels,st,biases};
+  const upT=e9[e9.length-1]>e21[e21.length-1];
+  const reasons=[
+    upT?'الاتجاه قصير المدى صاعد (EMA9 فوق EMA21)':'الاتجاه قصير المدى هابط (EMA9 تحت EMA21)',
+    bull?'الزخم مؤكد بـ MACD الصاعد':'الزخم مؤكد بـ MACD الهابط',
+    R>=70?'RSI مرتفع ('+R.toFixed(0)+') — منطقة تشبع شرائي، الحذر من الانعكاس':(R<=30?'RSI منخفض ('+R.toFixed(0)+') — منطقة تشبع بيعي، الحذر من الانعكاس':'RSI في منطقة صحية ('+R.toFixed(0)+') بلا تشبع'),
+    'توافق الفريمات: '+Object.values(biases).filter(b=>b===(dir==='BUY'?'▲':dir==='SELL'?'▼':'·')).length+'/3 مع اتجاه الصفقة',
+    'التذبذب (ATR) مضبوط عليه الوقف والأهداف — الوقف 1.5×ATR'
+  ];
+  if(sym==='PAXGUSDT') reasons.push('الذهب عبر PAXG — توكن مدعوم بالذهب الحقيقي وكيتبع سعر XAU/USD');
+  if(sym==='EURUSDT') reasons.push('اليورو/دولار عبر EUR/USDT في Binance — نفس حركة EUR/USD تقريباً');
+  return {sym,price,R,dir,strength:Math.abs(s),levels,st,biases,reasons};
 }
 function card(x){
-  const name=x.sym.replace('USDT','/USDT');
+  const name=NAMES[x.sym]||x.sym.replace('USDT','/USDT');
   const badge=x.dir==='BUY'?'<span class="badge buy">شراء BUY</span>':x.dir==='SELL'?'<span class="badge sell">بيع SELL</span>':'<span class="badge neu">حياد — لا صفقة</span>';
   let rows=`<div class="row"><span>السعر الحالي</span><b>$${fmt(x.price)}</b></div>
   ${x.st?`<div class="row"><span>تغيّر 24 ساعة</span><b style="color:${x.st.chg>=0?'#86efac':'#fca5a5'}">${x.st.chg>=0?'+':''}${x.st.chg.toFixed(2)}%</b></div>
@@ -148,11 +159,16 @@ function card(x){
   <div class="meter"><i style="width:${x.strength}%"></i></div>`;
   let share='';
   if(x.levels){const L=x.levels;
+    const pts=v=>{const d=v-L.entry;return `(${d>=0?'+':''}${d.toFixed(Math.abs(d)>=100?1:2)} نقطة / ${d>=0?'+':''}${(100*d/L.entry).toFixed(2)}%)`};
+    const pos=Math.max(0,Math.min(100,100*(x.price-Math.min(L.sl,L.tp3))/Math.abs(L.tp3-L.sl)));
     rows+=`<div class="row"><span>الدخول Entry</span><b>$${fmt(L.entry)}</b></div>
-    <div class="row"><span>وقف الخسارة SL</span><b style="color:#fca5a5">$${fmt(L.sl)}</b></div>
-    <div class="row"><span>الهدف 1 TP1 (1.5R)</span><b style="color:#86efac">$${fmt(L.tp1)}</b></div>
-    <div class="row"><span>الهدف 2 TP2 (2.5R)</span><b style="color:#86efac">$${fmt(L.tp2)}</b></div>
-    <div class="row"><span>الهدف 3 TP3 (4R)</span><b style="color:#86efac">$${fmt(L.tp3)}</b></div>
+    <div class="row"><span>وقف الخسارة SL</span><b style="color:#fca5a5">$${fmt(L.sl)} ${pts(L.sl)}</b></div>
+    <div class="row"><span>الهدف 1 TP1 (1.5R)</span><b style="color:#86efac">$${fmt(L.tp1)} ${pts(L.tp1)}</b></div>
+    <div class="row"><span>الهدف 2 TP2 (2.5R)</span><b style="color:#86efac">$${fmt(L.tp2)} ${pts(L.tp2)}</b></div>
+    <div class="row"><span>الهدف 3 TP3 (4R)</span><b style="color:#86efac">$${fmt(L.tp3)} ${pts(L.tp3)}</b></div>
+    <div style="font-size:12px;color:var(--mut);margin-top:6px">موقع السعر بين الوقف والهدف الأخير:</div>
+    <div style="position:relative;height:8px;background:linear-gradient(90deg,#7f1d1d,#334155,#14532d);border-radius:99px;margin:4px 0 8px"><i style="position:absolute;top:-3px;left:calc(${pos}% - 2px);width:4px;height:14px;background:var(--gold);border-radius:2px"></i></div>
+    <div style="font-size:13px;line-height:1.9;background:#0d1420;border:1px dashed var(--line);border-radius:10px;padding:8px 10px"><b style="color:var(--gold)">لماذا هاد الاتجاه؟</b><br>${x.reasons.map(r=>'• '+r).join('<br>')}</div>
     <div class="row"><span>الشارت</span><b><a target="_blank" style="color:#93c5fd" href="https://www.tradingview.com/symbols/${x.sym.replace('USDT','USDT')}/?exchange=BINANCE">TradingView ↗</a></b></div>`;
     const txt=encodeURIComponent(`📊 صفقة ${name} — ${x.dir}\nالدخول: $${fmt(L.entry)}\nوقف الخسارة: $${fmt(L.sl)}\nالأهداف: $${fmt(L.tp1)} / $${fmt(L.tp2)} / $${fmt(L.tp3)}\nقوة الإشارة: ${x.strength}% — TradePro Signals`);
     share=`<div class="share"><a class="wa" target="_blank" href="https://wa.me/?text=${txt}">شارك عبر واتساب</a><a class="tg" target="_blank" href="https://t.me/share/url?url=&text=${txt}">Telegram</a></div>
@@ -200,13 +216,15 @@ async function pulse(){
     const fg=await (await fetch('https://api.alternative.me/fng/?limit=1')).json();
     const fgv=fg.data[0];
     let parts=[`الخوف والطمع: <b style="color:var(--gold)">${fgv.value} — ${fgv.value_classification}</b>`];
-    for(const s of SYMBOLS){
+    for(const s of SYMBOLS.slice(0,6)){
+      try{
       const inst=s.replace('USDT','-USDT-SWAP');
       const fr=await (await fetch(`https://www.okx.com/api/v5/public/funding-rate?instId=${inst}`)).json();
       const oi=await (await fetch(`https://www.okx.com/api/v5/public/open-interest?instType=SWAP&instId=${inst}`)).json();
       const f=parseFloat(fr.data[0].fundingRate)*100, o=parseFloat(oi.data[0].oiUsd)/1e9;
       const read=f>=0.05?'ازدحام شراء ⚠️':(f<=-0.05?'ازدحام بيع ⚠️':'تمركز متوازن');
       parts.push(`${s.replace('USDT','')}: Funding ${f>=0?'+':''}${f.toFixed(4)}% · OI $${o.toFixed(2)}B · ${read}`);
+      }catch(e){}
     }
     document.getElementById('pulse').innerHTML=parts.join('<br>');
   }catch(e){document.getElementById('pulse').textContent='نبض السوق غير متاح هاد اللحظة (مصادر OKX / alternative.me)'}

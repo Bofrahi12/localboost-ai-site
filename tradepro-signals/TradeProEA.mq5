@@ -1,4 +1,4 @@
-//+------------------------------------------------------------------+
+﻿//+------------------------------------------------------------------+
 //| TradeProEA.mq5 — روبوت TradePro Signals لـ MetaTrader 5          |
 //| كيتداول تلقائياً على حساب الزبون نفسه، عند أي بروكر MT5         |
 //| (Exness وغيره). المنصة لا ترى كلمة سر الزبون ولا مفاتيحه أبداً. |
@@ -12,7 +12,7 @@
 //| وفريم 4H خاسر (−29R): الروبوت للشارت 1H فقط.                    |
 //+------------------------------------------------------------------+
 #property strict
-#property version "1.11"
+#property version "1.12"
 #include <Trade/Trade.mqh>
 CTrade trade;
 
@@ -26,6 +26,7 @@ input int    InpTimerSeconds= 30;      // قراءة السوق كل كم ثان
 input int    InpMaxTradesDay= 3;       // أقصى عدد صفقات في اليوم
 input double InpDailyLossPct= 3.0;     // وقف التداول اليومي عند خسارة % من الرصيد
 input bool   InpVerbose     = true;    // طباعة قراءة السوق في سجل Experts كل شمعة
+input bool   InpTestMode    = false;   // وضع الاختبار: صفقة تجريبية صغيرة عند أول قراءة (Demo فقط — ممنوع على الحقيقي)
 
 int hEMA9, hEMA21, hEMA50, hEMA200, hRSI, hMACD, hATR;
 datetime lastBarTime = 0;
@@ -46,6 +47,10 @@ int OnInit(){
    trade.SetDeviationInPoints(20);
    EventSetTimer(InpTimerSeconds);
    Print("TradeProEA: اشتغل على ", _Symbol, " — قراءة كل ", InpTimerSeconds, " ثانية — جرّب Demo أولاً!");
+   long tmode = AccountInfoInteger(ACCOUNT_TRADE_MODE);
+   if(tmode == ACCOUNT_TRADE_MODE_REAL) Print("TradeProEA: ⚠️ تنبيه — هادا حساب حقيقي (REAL) بفلوس حقيقية");
+   if(tmode == ACCOUNT_TRADE_MODE_DEMO) Print("TradeProEA: الحساب تجريبي (Demo) — مزيان للاختبار");
+   Print("TradeProEA: الإعدادات — مخاطرة ", InpRiskPercent, "% · حد صفقات اليوم ", InpMaxTradesDay, " · وقف يومي ", InpDailyLossPct, "% · سبريد أقصى ", InpMaxSpreadATR, "×ATR");
    return(INIT_SUCCEEDED);
 }
 void OnDeinit(const int reason){
@@ -109,6 +114,8 @@ double CalcLot(double slDistancePrice){
    return MathMax(minLot, MathMin(maxLot, NormalizeDouble(lot, 2)));
 }
 datetime lastPrintBar = 0;
+bool testDone = false;
+bool testWarned = false;
 void Evaluate(){
    // الحراس أولاً — الروبوت ما كيغامرش
    if(InpOneTrade && HasOpenTrade()) return;
@@ -153,18 +160,71 @@ void Evaluate(){
       double sl = ask - InpSL_ATR_Mult * atr;
       double tp = ask + (ask - sl) * InpTP_R;
       double lot = CalcLot(ask - sl);
-      if(lot > 0 && trade.Buy(lot, _Symbol, ask, sl, tp, "TradePro V2 BUY")) lastEntryBar = bar0;
+      if(lot > 0){ if(trade.Buy(lot, _Symbol, ask, sl, tp, "TradePro V2 BUY")){ lastEntryBar = bar0; Print("TradeProEA: ✅ تنفذات صفقة شراء بحجم ", lot); } else Print("TradeProEA: ❌ فشل الشراء: ", trade.ResultRetcodeDescription()); }
    }
    if((freshDn && trendDn && macd < macdSig && rsi >= 32 && rsi <= 60 && strength > 0.08) || contDn){
       double sl = bid + InpSL_ATR_Mult * atr;
       double tp = bid - (sl - bid) * InpTP_R;
       double lot = CalcLot(sl - bid);
-      if(lot > 0 && trade.Sell(lot, _Symbol, bid, sl, tp, "TradePro V2 SELL")) lastEntryBar = bar0;
+      if(lot > 0){ if(trade.Sell(lot, _Symbol, bid, sl, tp, "TradePro V2 SELL")){ lastEntryBar = bar0; Print("TradeProEA: ✅ تنفذات صفقة بيع بحجم ", lot); } else Print("TradeProEA: ❌ فشل البيع: ", trade.ResultRetcodeDescription()); }
+   }
+}
+
+void Heartbeat(){
+   double close = iClose(_Symbol, PERIOD_CURRENT, 1);
+   double e9 = Buf(hEMA9,0,1), e21 = Buf(hEMA21,0,1);
+   double e50 = Buf(hEMA50,0,1), e200 = Buf(hEMA200,0,1);
+   double rsi = Buf(hRSI,0,1);
+   double macd = Buf(hMACD,0,1), macdSig = Buf(hMACD,1,1);
+   double atrv = Buf(hATR,0,1);
+   if(atrv<=0 || close<=0) return;
+   bool trendUp = (close > e50 && e50 > e200);
+   bool trendDn = (close < e50 && e50 < e200);
+   double strength = MathAbs(e9 - e21) / atrv;
+   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+   double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+   double spreadPct = 100 * (ask - bid) / atrv;
+   bool algoOn = (bool)TerminalInfoInteger(TERMINAL_TRADE_ALLOWED) && (bool)MQLInfoInteger(MQL_TRADE_ALLOWED);
+   string miss = "";
+   if(trendUp || (!trendDn && e9 > e21)){
+      if(!(Buf(hEMA9,0,2) <= Buf(hEMA21,0,2) && e9 > e21) && !(trendUp && e9 > e21 && macd > macdSig && rsi >= 50 && rsi <= 65 && strength > 0.35)) miss += "لا تقاطع طازج ولا استمرارية ";
+      if(macd <= macdSig) miss += "· MACD ضد الشراء ";
+      if(rsi < 40 || rsi > 68) miss += "· RSI خارج نطاق الشراء (" + DoubleToString(rsi,0) + ") ";
+      if(strength <= 0.08) miss += "· القوة ضعيفة ";
+      if(miss == "") miss = "الشروط كاملة — الدخول عند القراءة الموالية";
+      Print("TradeProEA نبض ", _Symbol, ": شراء؟ ", miss, "· سبريد ", DoubleToString(spreadPct,0), "%ATR · التداول الآلي: ", (algoOn ? "مفعّل ✅" : "موقوف ❌ فعّل زر Algo Trading واسمح في إعدادات الروبو"));
+   } else {
+      if(!(Buf(hEMA9,0,2) >= Buf(hEMA21,0,2) && e9 < e21) && !(trendDn && e9 < e21 && macd < macdSig && rsi >= 35 && rsi <= 50 && strength > 0.35)) miss += "لا تقاطع طازج ولا استمرارية ";
+      if(macd >= macdSig) miss += "· MACD ضد البيع ";
+      if(rsi < 32 || rsi > 60) miss += "· RSI خارج نطاق البيع (" + DoubleToString(rsi,0) + ") ";
+      if(strength <= 0.08) miss += "· القوة ضعيفة ";
+      if(miss == "") miss = "الشروط كاملة — الدخول عند القراءة الموالية";
+      Print("TradeProEA نبض ", _Symbol, ": بيع؟ ", miss, "· سبريد ", DoubleToString(spreadPct,0), "%ATR · التداول الآلي: ", (algoOn ? "مفعّل ✅" : "موقوف ❌ فعّل زر Algo Trading واسمح في إعدادات الروبو"));
+   }
+}
+void MaybeTestTrade(){
+   if(!InpTestMode || testDone) return;
+   long tmode = AccountInfoInteger(ACCOUNT_TRADE_MODE);
+   if(tmode == ACCOUNT_TRADE_MODE_REAL){
+      if(!testWarned){ testWarned = true; Print("TradeProEA: وضع الاختبار مرفوض على حساب حقيقي — بدّل لحساب Demo (Trial) أولاً"); }
+      return;
+   }
+   if(!(bool)MQLInfoInteger(MQL_TRADE_ALLOWED)){ Print("TradeProEA: وضع الاختبار كيتسنى تفعيل Algo Trading"); return; }
+   double atrv = Buf(hATR,0,1); if(atrv<=0) return;
+   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+   double minLot = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
+   double sl = ask - InpSL_ATR_Mult * atrv;
+   double tp = ask + (ask - sl) * InpTP_R;
+   if(trade.Buy(minLot, _Symbol, ask, sl, tp, "TradePro TEST")){
+      testDone = true;
+      Print("TradeProEA: ✅ صفقة اختبار تنفذات بحجم ", minLot, " — التنفيذ خدام! سكّرها يدوياً من تبويب Trade ملي تشوفها");
+   } else {
+      Print("TradeProEA: ❌ صفقة الاختبار فشلات: ", trade.ResultRetcodeDescription());
    }
 }
 void OnTick(){
    datetime t[]; if(CopyTime(_Symbol, PERIOD_CURRENT, 0, 1, t) < 1) return;
    if(t[0] != lastBarTime){ lastBarTime = t[0]; Evaluate(); }
 }
-void OnTimer(){ Evaluate(); }
+void OnTimer(){ Heartbeat(); MaybeTestTrade(); Evaluate(); }
 //+------------------------------------------------------------------+

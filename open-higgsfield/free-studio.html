@@ -74,8 +74,35 @@
     <div id="hist"><p class="hint" id="histEmpty">حتى صورة بعد — ولّد أول وحدة وغتبان هنا.</p></div>
   </div>
 
+  <div class="card" id="mhcard">
+    <h3 style="margin:0 0 6px">🎬 فيديو مجاني — Magic Hour <span class="badge" style="background:#7c5cff;color:#fff;font-size:11px;padding:3px 8px;border-radius:99px">رصيد مجاني عند التسجيل</span></h3>
+    <p class="hint">محرك فيديو حقيقي بموديلات Veo وKling وSeedance — التسجيل مجاني وبلا بطاقة بنكية وكيعطي رصيد بداية فابور. المفتاح كيبقى محفوظ غير في متصفح هاتفك، وما كيتصيفط لحتى بلاصة أخرى من غير Magic Hour.</p>
+    <label for="mhkey">مفتاح Magic Hour API ديالك</label>
+    <input type="password" id="mhkey" placeholder="لصق المفتاح هنا — كيتحفظ في هاد الجهاز فقط" style="width:100%;background:#0e0e14;border:1px solid var(--line);border-radius:10px;color:var(--txt);padding:11px;font-size:14px" />
+    <a class="flow-btn" style="background:#22222e;border:1px solid var(--line)" href="https://magichour.ai/developer" target="_blank" rel="noopener">🔑 ما عندكش مفتاح؟ سجّل فابور وجيبو من هنا</a>
+    <label for="mhprompt">وصف الفيديو (الإنجليزية كتعطي نتيجة أحسن)</label>
+    <textarea id="mhprompt" placeholder="Epic cinematic war scene at dawn, soldiers advancing through fog, distant explosions, photorealistic"></textarea>
+    <label>المقاس</label>
+    <div class="row" id="mhsizes">
+      <button class="chip on" data-ar="16:9">عريض 16:9</button>
+      <button class="chip" data-ar="9:16">عمودي 9:16</button>
+      <button class="chip" data-ar="1:1">مربع 1:1</button>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <select id="mhres"><option value="480p">480p — أرخص بالكريديت</option><option value="720p">720p — جودة أعلى</option></select>
+      <select id="mhdur"><option value="5">5 ثوانٍ</option><option value="10">10 ثوانٍ</option></select>
+      <select id="mhmodel"><option value="auto">موديل تلقائي</option><option value="veo">Veo</option><option value="kling">Kling</option><option value="minimax">MiniMax</option><option value="hailuo">Hailuo</option><option value="luma">Luma</option></select>
+    </div>
+    <button class="gen" id="mhgo">🎬 ولّد الفيديو</button>
+    <p class="hint" id="mhstatus"></p>
+    <div id="mhstage" style="display:none;text-align:center">
+      <video id="mhvideo" controls playsinline style="max-width:100%;border-radius:12px;border:1px solid var(--line)"></video>
+      <div class="actions"><a id="mhdl" href="#" target="_blank" rel="noopener">⬇️ تحميل الفيديو</a></div>
+    </div>
+  </div>
+
   <div class="card">
-    <h3 style="margin:0 0 6px">🎬 الفيديو المجاني</h3>
+    <h3 style="margin:0 0 6px">🎬 الفيديو المجاني — Google Flow</h3>
     <p class="hint">الفيديو الاحترافي المجاني الحقيقي اللي عندك هو <b>Google Flow</b>: 50 كريديت كيتجددو كل نهار مع 14:38 على حسابك، وبـ Veo 3.1 Lite (10 كريديت للمقطع) كيدير ليك 5 مقاطع في النهار بلا فلوس — هو المحرك اللي ولّدنا بيه مقطع حمادي. الفيديو داخل التطبيق الرئيسي كيخدم بـ Muapi على حساب الرصيد.</p>
     <a class="flow-btn" href="https://labs.google/fx/tools/flow" target="_blank" rel="noopener">افتح Google Flow</a>
   </div>
@@ -120,6 +147,66 @@
       var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='free-studio-'+Date.now()+'.jpg'; a.click();
       setTimeout(function(){URL.revokeObjectURL(a.href)},4000);
     }).catch(function(){ window.open(lastUrl,'_blank'); });
+  });
+
+  // ===== Magic Hour free-credit video engine =====
+  var MH='https://api.magichour.ai/v1', mhAR='16:9', mhTimer=null;
+  var keyEl=document.getElementById('mhkey');
+  try{ keyEl.value=localStorage.getItem('mh_key')||''; }catch(e){}
+  keyEl.addEventListener('change',function(){ try{ localStorage.setItem('mh_key',keyEl.value.trim()); }catch(e){} });
+  document.getElementById('mhsizes').addEventListener('click',function(e){
+    var b=e.target.closest('.chip'); if(!b) return;
+    document.querySelectorAll('#mhsizes .chip').forEach(function(c){c.classList.remove('on')});
+    b.classList.add('on'); mhAR=b.dataset.ar;
+  });
+  function mhMsg(t){ document.getElementById('mhstatus').textContent=t; }
+  function mhPoll(id,key,btn,tries){
+    fetch(MH+'/video-projects/'+id,{headers:{'Authorization':'Bearer '+key,'accept':'application/json'}})
+    .then(function(r){return r.json()})
+    .then(function(d){
+      if(d.status==='complete'&&d.downloads&&d.downloads.length){
+        btn.disabled=false; btn.textContent='🎬 ولّد الفيديو';
+        mhMsg('✅ سالى التوليد'+(d.credits_charged!=null?' — تخصمو '+d.credits_charged+' كريديت من الرصيد المجاني':''));
+        var v=document.getElementById('mhvideo'); v.src=d.downloads[0].url;
+        document.getElementById('mhdl').href=d.downloads[0].url;
+        document.getElementById('mhstage').style.display='block';
+      } else if(d.status==='error'||d.status==='canceled'){
+        btn.disabled=false; btn.textContent='🎬 ولّد الفيديو';
+        mhMsg('❌ التوليد فشل'+(d.error&&d.error.message?' — '+d.error.message:''));
+      } else if(tries>90){
+        btn.disabled=false; btn.textContent='🎬 ولّد الفيديو';
+        mhMsg('⏳ التوليد باقي خدام من جهة Magic Hour — خرج ورجع لقى الفيديو في حسابك عندهم.');
+      } else {
+        mhMsg(d.status==='rendering'?'🎥 كيترندر الفيديو...':'⏳ في الطابور...');
+        mhTimer=setTimeout(function(){ mhPoll(id,key,btn,tries+1); },8000);
+      }
+    })
+    .catch(function(){ mhTimer=setTimeout(function(){ mhPoll(id,key,btn,tries+1); },8000); });
+  }
+  document.getElementById('mhgo').addEventListener('click',function(){
+    var key=keyEl.value.trim();
+    var p=document.getElementById('mhprompt').value.trim();
+    if(!key){ mhMsg('⚠️ خاصك المفتاح أولاً — سجّل فابور من الزر اللي فوق ولصق المفتاح هنا.'); keyEl.focus(); return; }
+    if(!p){ mhMsg('⚠️ كتب وصف الفيديو أولاً.'); return; }
+    try{ localStorage.setItem('mh_key',key); }catch(e){}
+    var btn=this; btn.disabled=true; btn.innerHTML='<span class="spin"></span> كنصيفط الطلب...';
+    mhMsg('');
+    document.getElementById('mhstage').style.display='none';
+    fetch(MH+'/text-to-video',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json','accept':'application/json'},
+      body:JSON.stringify({end_seconds:parseFloat(document.getElementById('mhdur').value),aspect_ratio:mhAR,resolution:document.getElementById('mhres').value,model:document.getElementById('mhmodel').value,name:'Free Studio video',style:{prompt:p}})})
+    .then(function(r){return r.json().then(function(d){return {ok:r.ok,st:r.status,d:d}})})
+    .then(function(res){
+      if(!res.ok||!res.d.id){
+        btn.disabled=false; btn.textContent='🎬 ولّد الفيديو';
+        if(res.st===401){ mhMsg('❌ المفتاح مرفوض — تأكد منو ولا ولّد واحد جديد من لوحة Magic Hour.'); }
+        else if(res.st===402||/credit/i.test(JSON.stringify(res.d))){ mhMsg('❌ الرصيد المجاني سالى في هاد الحساب.'); }
+        else { mhMsg('❌ الطلب ترفض ('+res.st+')'+(res.d.message?' — '+res.d.message:'')); }
+        return;
+      }
+      mhMsg('⏳ تقبل الطلب — التوليد بدا...');
+      mhPoll(res.d.id,key,btn,0);
+    })
+    .catch(function(){ btn.disabled=false; btn.textContent='🎬 ولّد الفيديو'; mhMsg('❌ مشكل في الاتصال بـ Magic Hour — عاود المحاولة.'); });
   });
 </script>
 </body>

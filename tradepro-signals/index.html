@@ -263,7 +263,7 @@ async function load(){
     let html='', lastGroup='';
     for(const x of out){ if(x.p.group!==lastGroup){html+=`<div style="grid-column:1/-1;font-size:19px;font-weight:700;color:var(--gold);margin-top:10px">${x.p.group}</div>`;lastGroup=x.p.group} html+=card(x) }
     document.getElementById('grid').innerHTML=html;
-    document.getElementById('status').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar-MA')+' — المصادر: Binance + OKX (بيانات حقيقية مباشرة) — يتجدد تلقائياً كل 60 ثانية';
+    document.getElementById('status').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar-MA')+' — المصادر: Binance + OKX (بيانات حقيقية مباشرة) — كنقراو السوق وكنجدّدو التحليل كل 30 ثانية';
   }catch(e){document.getElementById('status').textContent='تعذّر جلب البيانات الآن — تحقق من الاتصال وحاول مجدداً.'}
 }
 document.querySelectorAll('#tf button[data-tf]').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tf button').forEach(x=>x.classList.remove('on'));b.classList.add('on');TF=b.dataset.tf;load()});
@@ -335,7 +335,7 @@ function psCalc(){
   out.innerHTML=`المبلغ المعرض للخسارة: <b>$${riskAmt.toFixed(2)}</b> · الكمية: <b>${qty.toFixed(6)}</b> · قيمة الصفقة: <b>$${(qty*en).toFixed(2)}</b>`;
 }
 ['ps_cap','ps_risk','ps_entry','ps_sl'].forEach(id=>document.getElementById(id).addEventListener('input',psCalc));
-load(); setInterval(load,60000); setInterval(tickPrices,5000); setInterval(candleCountdown,1000); candleCountdown(); funding(); setInterval(funding,120000); pulse(); setInterval(pulse,120000);
+load(); setInterval(load,30000); setInterval(tickPrices,5000); setInterval(candleCountdown,1000); candleCountdown(); funding(); setInterval(funding,120000); pulse(); setInterval(pulse,120000);
 </script>
 </body>
 </html>

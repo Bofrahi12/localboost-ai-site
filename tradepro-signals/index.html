@@ -58,7 +58,7 @@ h1{margin:0;font-size:28px}h1 span{color:var(--gold)}
 </div>
 <section style="max-width:1200px;margin:0 auto 6px;padding:0 16px">
   <h2 style="text-align:center;margin:8px 0">جميع الأسواق — مباشر</h2>
-  <p style="text-align:center;color:var(--mut);font-size:13px;margin:0 0 8px">أسعار وشارتات حية من TradingView: فوركس، ذهب ونفط، مؤشرات، أسهم وكريبتو. إشاراتنا المحسوبة كتغطي الكريبتو والذهب والنفط والفوركس (في قسم الصفقات تحت)؛ الأسهم والمؤشرات هنا كأسعار وشارتات حية، وإشاراتهم كيولّدها روبوت MT5 من بيانات بروكرك.</p>
+  <p style="text-align:center;color:var(--mut);font-size:13px;margin:0 0 8px">أسعار وشارتات حية من TradingView: فوركس، ذهب ونفط، مؤشرات، أسهم وكريبتو. كل سوق هنا عندو بطاقة صفقة محسوبة في قسم الصفقات تحت: اتجاه واضح (شراء/بيع) + دخول + وقف + أهداف + زر نسخ — هاد القسم للشارتات الحية الموسّعة.</p>
   <div class="tradingview-widget-container" style="height:520px">
     <div class="tradingview-widget-container__widget" style="height:100%"></div>
     <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
@@ -70,7 +70,7 @@ h1{margin:0;font-size:28px}h1 span{color:var(--gold)}
   <h2 style="text-align:center;margin:8px 0">نبض السوق</h2>
   <div id="pulse" style="text-align:center;color:var(--mut);font-size:14px;line-height:2">جارٍ جلب نبض السوق…</div>
 </section>
-<h2 style="text-align:center;margin:10px 0 0">الصفقات المباشرة — 11 زوجاً: كريبتو، ذهب، نفط وفوركس</h2>
+<h2 style="text-align:center;margin:10px 0 0">الصفقات المباشرة — 20 زوجاً: كريبتو، معادن وطاقة، فوركس، مؤشرات وأسهم</h2>
 <main class="grid" id="grid"></main>
 <section style="max-width:560px;margin:0 auto 18px;padding:16px;background:var(--card);border:1px solid var(--line);border-radius:16px">
   <h2 style="text-align:center;margin:0 0 10px">حاسبة حجم الصفقة (مخاطرة 1%)</h2>
@@ -141,10 +141,19 @@ const PAIRS=[
  {id:'XRPUSDT',src:'BN',label:'XRP/USDT',group:'🪙 الكريبتو',tv:'BINANCE:XRPUSDT'},
  {id:'DOGEUSDT',src:'BN',label:'DOGE/USDT',group:'🪙 الكريبتو',tv:'BINANCE:DOGEUSDT'},
  {id:'XAU-USDT-SWAP',src:'OKX',label:'الذهب XAU/USD',group:'🥇 المعادن والطاقة',tv:'OANDA:XAUUSD'},
+ {id:'XAG-USDT-SWAP',src:'OKX',label:'الفضة XAG/USD',group:'🥇 المعادن والطاقة',tv:'OANDA:XAGUSD'},
  {id:'CL-USDT-SWAP',src:'OKX',label:'النفط الخام WTI',group:'🥇 المعادن والطاقة',tv:'TVC:USOIL'},
+ {id:'NG-USDT-SWAP',src:'OKX',label:'الغاز الطبيعي',group:'🥇 المعادن والطاقة',tv:'TVC:NATGAS'},
  {id:'EURUSDT',src:'BN',label:'EUR/USD',group:'💱 الفوركس',tv:'FX:EURUSD'},
  {id:'GBPUSDT',src:'BN',label:'GBP/USD',group:'💱 الفوركس',tv:'FX:GBPUSD'},
- {id:'AUDUSDT',src:'BN',label:'AUD/USD',group:'💱 الفوركس',tv:'FX:AUDUSD'}
+ {id:'AUDUSDT',src:'BN',label:'AUD/USD',group:'💱 الفوركس',tv:'FX:AUDUSD'},
+ {id:'US500-USDT-SWAP',src:'OKX',label:'مؤشر S&P 500',group:'📈 المؤشرات',tv:'FOREXCOM:SPXUSD'},
+ {id:'US100-USDT-SWAP',src:'OKX',label:'مؤشر Nasdaq 100',group:'📈 المؤشرات',tv:'FOREXCOM:NSXUSD'},
+ {id:'AAPL-USDT-SWAP',src:'OKX',label:'سهم Apple',group:'🏢 الأسهم الأمريكية',tv:'NASDAQ:AAPL'},
+ {id:'TSLA-USDT-SWAP',src:'OKX',label:'سهم Tesla',group:'🏢 الأسهم الأمريكية',tv:'NASDAQ:TSLA'},
+ {id:'NVDA-USDT-SWAP',src:'OKX',label:'سهم Nvidia',group:'🏢 الأسهم الأمريكية',tv:'NASDAQ:NVDA'},
+ {id:'MSFT-USDT-SWAP',src:'OKX',label:'سهم Microsoft',group:'🏢 الأسهم الأمريكية',tv:'NASDAQ:MSFT'},
+ {id:'AMZN-USDT-SWAP',src:'OKX',label:'سهم Amazon',group:'🏢 الأسهم الأمريكية',tv:'NASDAQ:AMZN'}
 ];
 const OKXBAR={'15m':'15m','1h':'1H','4h':'4H'};
 let TF='1h';
@@ -179,9 +188,12 @@ async function analyse(p){
   let s=0; s+= e9[e9.length-1]>e21[e21.length-1]?30:-30; s+= bull?25:-25;
   if(R>50&&R<70)s+=20; else if(R>=70)s+=5; else if(R>30)s-=20; else s-=5;
   const dir=s>15?'BUY':(s<-15?'SELL':'NEUTRAL');
-  let levels=null;
-  if(dir!=='NEUTRAL'){const sl=dir==='BUY'?price-1.5*A:price+1.5*A;const risk=Math.abs(price-sl);
-    levels={entry:price,sl,tp1:dir==='BUY'?price+risk*1.5:price-risk*1.5,tp2:dir==='BUY'?price+risk*2.5:price-risk*2.5,tp3:dir==='BUY'?price+risk*4:price-risk*4}}
+  const lean=(e9[e9.length-1]>e21[e21.length-1]?1:-1)+(bull?1:-1);
+  const bias=lean>0?'BUY':(lean<0?'SELL':(e9[e9.length-1]>e21[e21.length-1]?'BUY':'SELL'));
+  const mkLevels=d=>{const sl=d==='BUY'?price-1.5*A:price+1.5*A;const risk=Math.abs(price-sl);
+    return {entry:price,sl,tp1:d==='BUY'?price+risk*1.5:price-risk*1.5,tp2:d==='BUY'?price+risk*2.5:price-risk*2.5,tp3:d==='BUY'?price+risk*4:price-risk*4}};
+  let levels=null, watch=null;
+  if(dir!=='NEUTRAL') levels=mkLevels(dir); else watch=mkLevels(bias);
   const st=await stats24(p);
   const biases={}; for(const tf of ['15m','1h','4h']) biases[tf]= tf===TF ? (e9[e9.length-1]>e21[e21.length-1]?'▲':'▼') : await biasTF(p,tf);
   const upT=e9[e9.length-1]>e21[e21.length-1];
@@ -194,7 +206,8 @@ async function analyse(p){
   ];
   if(p.src==='OKX') reasons.push('بيانات '+p.label+' من OKX — سوق مباشر، نفس الأسعار العالمية');
   if(p.src==='BN'&&p.group.includes('فوركس')) reasons.push(p.label+' عبر '+p.id.replace('USDT','/USDT')+' في Binance — نفس حركة الزوج العالمي');
-  return {p,price,R,dir,strength:Math.abs(s),levels,st,biases,reasons};
+  if(dir==='NEUTRAL') reasons.push('الإشارات متضاربة هاد اللحظة: الميل العام من الاتجاه والزخم فقط — المستويات تحت للمراقبة حتى يتأكد الدخول');
+  return {p,price,R,dir,bias,strength:Math.abs(s),levels,watch,st,biases,reasons};
 }
 const TRADES={};
 function copyTrade(id,btn){
@@ -205,7 +218,8 @@ function copyTrade(id,btn){
 function fallbackCopy(t){const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(ta)}
 function card(x){
   const name=x.p.label;
-  const badge=x.dir==='BUY'?'<span class="badge buy">شراء BUY</span>':x.dir==='SELL'?'<span class="badge sell">بيع SELL</span>':'<span class="badge neu">حياد — لا صفقة</span>';
+  const biasBanner=`<div style="text-align:center;font-size:19px;font-weight:800;padding:8px;border-radius:10px;margin:6px 0;background:${x.bias==='BUY'?'#14532d':'#7f1d1d'};color:#fff">الاتجاه: ${x.bias==='BUY'?'شراء ▲ BUY':'بيع ▼ SELL'}</div>`;
+  const badge=x.dir!=='NEUTRAL'?'<span class="badge '+(x.dir==='BUY'?'buy':'sell')+'">✅ صفقة مؤكدة</span>':'<span class="badge neu">👀 مراقبة — بلا تأكيد كامل</span>';
   let rows=`<div class="row"><span>السعر الحالي</span><b>$${fmt(x.price)}</b></div>
   ${x.st?`<div class="row"><span>تغيّر 24 ساعة</span><b style="color:${x.st.chg>=0?'#86efac':'#fca5a5'}">${x.st.chg>=0?'+':''}${x.st.chg.toFixed(2)}%</b></div>
   <div class="row"><span>أعلى / أدنى 24 س</span><b>$${fmt(x.st.hi)} / $${fmt(x.st.lo)}</b></div>`:''}
@@ -214,10 +228,12 @@ function card(x){
   <div class="row"><span>قوة الإشارة</span><b>${x.strength}%</b></div>
   <div class="meter"><i style="width:${x.strength}%"></i></div>`;
   let share='';
-  if(x.levels){const L=x.levels;
+  const L=x.levels||x.watch, confirmed=!!x.levels;
+  if(L){
     const pts=v=>{const d=v-L.entry;return `(${d>=0?'+':''}${d.toFixed(Math.abs(d)>=100?1:2)} نقطة / ${d>=0?'+':''}${(100*d/L.entry).toFixed(2)}%)`};
     const pos=Math.max(0,Math.min(100,100*(x.price-Math.min(L.sl,L.tp3))/Math.abs(L.tp3-L.sl)));
-    rows+=`<div class="row"><span>الدخول Entry</span><b>$${fmt(L.entry)}</b></div>
+    rows+=`${confirmed?'':'<div style="font-size:13px;color:var(--gold);margin-top:6px">مستويات للمراقبة في اتجاه الميل العام — ماشي صفقة مؤكدة:</div>'}
+    <div class="row"><span>الدخول Entry</span><b>$${fmt(L.entry)}</b></div>
     <div class="row"><span>وقف الخسارة SL</span><b style="color:#fca5a5">$${fmt(L.sl)} ${pts(L.sl)}</b></div>
     <div class="row"><span>الهدف 1 TP1 (1.5R)</span><b style="color:#86efac">$${fmt(L.tp1)} ${pts(L.tp1)}</b></div>
     <div class="row"><span>الهدف 2 TP2 (2.5R)</span><b style="color:#86efac">$${fmt(L.tp2)} ${pts(L.tp2)}</b></div>
@@ -226,23 +242,24 @@ function card(x){
     <div style="position:relative;height:8px;background:linear-gradient(90deg,#7f1d1d,#334155,#14532d);border-radius:99px;margin:4px 0 8px"><i style="position:absolute;top:-3px;left:calc(${pos}% - 2px);width:4px;height:14px;background:var(--gold);border-radius:2px"></i></div>
     <div style="font-size:13px;line-height:1.9;background:#0d1420;border:1px dashed var(--line);border-radius:10px;padding:8px 10px"><b style="color:var(--gold)">لماذا هاد الاتجاه؟</b><br>${x.reasons.map(r=>'• '+r).join('<br>')}</div>
     <div class="row"><span>الشارت</span><b><a target="_blank" style="color:#93c5fd" href="https://www.tradingview.com/chart/?symbol=${x.p.tv}">TradingView ↗</a></b></div>`;
-    const plain=`📊 صفقة ${name} — ${x.dir} (فريم ${TF})
+    const dirTxt=confirmed?x.dir:x.bias;
+    const plain=`${confirmed?'📊 صفقة':'👀 مراقبة (ماشي صفقة مؤكدة)'} ${name} — ${dirTxt} (فريم ${TF})
 الدخول: $${fmt(L.entry)}
 وقف الخسارة: $${fmt(L.sl)}
 الأهداف: $${fmt(L.tp1)} / $${fmt(L.tp2)} / $${fmt(L.tp3)}
 قوة الإشارة: ${x.strength}% — TradePro Signals`;
     TRADES[x.p.id]=plain;
     const txt=encodeURIComponent(plain);
-    share=`<button onclick="copyTrade('${x.p.id}',this)" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;border:none;background:var(--gold);color:#111;cursor:pointer;font-weight:700">📋 نسخ الصفقة</button>
+    share=`<button onclick="copyTrade('${x.p.id}',this)" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;border:none;background:var(--gold);color:#111;cursor:pointer;font-weight:700">📋 نسخ ${confirmed?'الصفقة':'مستويات المراقبة'}</button>
     <div class="share"><a class="wa" target="_blank" href="https://wa.me/?text=${txt}">شارك عبر واتساب</a><a class="tg" target="_blank" href="https://t.me/share/url?url=&text=${txt}">Telegram</a></div>
-    <button onclick="registerTrade('${x.p.id}','${x.dir}',${L.entry},${L.sl},${L.tp1})" style="width:100%;margin-top:8px;padding:9px;border-radius:10px;border:1px solid var(--gold);background:transparent;color:var(--gold);cursor:pointer;font-weight:600">📝 سجّل ورقياً — اختبار أمامي</button>`;
+    ${confirmed?`<button onclick="registerTrade('${x.p.id}','${x.dir}',${L.entry},${L.sl},${L.tp1})" style="width:100%;margin-top:8px;padding:9px;border-radius:10px;border:1px solid var(--gold);background:transparent;color:var(--gold);cursor:pointer;font-weight:600">📝 سجّل ورقياً — اختبار أمامي</button>`:''}`;
   }
-  return `<article class="card"><h2>${name} ${badge}</h2><div class="price" data-sym="${x.p.id}">$${fmt(x.price)}</div>${rows}${share}</article>`;
+  return `<article class="card"><h2>${name} ${badge}</h2>${biasBanner}<div class="price" data-sym="${x.p.id}">$${fmt(x.price)}</div>${rows}${share}</article>`;
 }
 async function load(){
   document.getElementById('status').textContent='جارٍ جلب الأسعار الحقيقية من السوق…';
   try{
-    const out=[]; for(const p of PAIRS) out.push(await analyse(p));
+    const out=await Promise.all(PAIRS.map(async p=>{try{return await analyse(p)}catch(e){return null}})).then(r=>r.filter(Boolean));
     let html='', lastGroup='';
     for(const x of out){ if(x.p.group!==lastGroup){html+=`<div style="grid-column:1/-1;font-size:19px;font-weight:700;color:var(--gold);margin-top:10px">${x.p.group}</div>`;lastGroup=x.p.group} html+=card(x) }
     document.getElementById('grid').innerHTML=html;

@@ -1,0 +1,20 @@
+# TradePro Signals
+
+TradePro Signals is a live crypto market analysis platform. It computes trade setups
+(entry, stop loss, three take-profit targets, signal strength) from real Binance
+public market data using EMA, RSI, MACD and ATR, refreshed continuously.
+
+## What it is
+- A live analysis and education tool for traders who execute on their own broker
+  account (for example Exness / MetaTrader).
+- Includes a position-size calculator (1% risk rule) and a step-by-step usage guide.
+
+## What it is not
+- Not a broker: it never accepts deposits and never holds client funds.
+- Not financial advice, and it does not promise profits. In an out-of-sample
+  backtest on real Binance data (24 configurations), the best first-target hit
+  rate was 60.5% with expectancy close to break-even after estimated costs.
+  No indicator strategy wins 90% of the time or always profits.
+
+## Pricing (owner's plans)
+- Premium: $29/month. Pro: $49/month. White-label licence available from the owner.

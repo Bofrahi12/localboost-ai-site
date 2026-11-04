@@ -6,6 +6,9 @@
 //| MACD، RSI في النطاق، قوة الاتجاه مقابل ATR. وقف 1.5×ATR وهدف 2R.|
 //| ⚠️ جرّب على حساب تجريبي (Demo) أولاً. التداول الآلي فيه خطر     |
 //| خسارة حقيقية — شغّلو على مسؤوليتك وبمخاطرة صغيرة.               |
+//| 📊 محاكاة المنطق على 1000 شمعة حقيقية: فريم 1H ≈ تعادل/ربح رقيق |
+//| (ذهب +6R، مجموع الكريبتو +6R) — وفريم 4H خاسر (−29R): لا تستعمل  |
+//| الروبوت إلا على شارت 1H.                                        |
 //+------------------------------------------------------------------+
 #property strict
 #property version "1.00"
@@ -34,6 +37,7 @@ int OnInit(){
       Print("TradeProEA: فشل إنشاء المؤشرات"); return(INIT_FAILED);
    }
    trade.SetExpertMagicNumber(InpMagic);
+   trade.SetDeviationInPoints(20);
    Print("TradeProEA: اشتغل على ", _Symbol, " — جرّب Demo أولاً!");
    return(INIT_SUCCEEDED);
 }

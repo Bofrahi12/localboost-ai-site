@@ -12,7 +12,7 @@
 //| وفريم 4H خاسر (−29R): الروبوت للشارت 1H فقط.                    |
 //+------------------------------------------------------------------+
 #property strict
-#property version "1.10"
+#property version "1.11"
 #include <Trade/Trade.mqh>
 CTrade trade;
 
@@ -20,11 +20,12 @@ input double InpRiskPercent = 1.0;     // المخاطرة % من الرصيد �
 input double InpSL_ATR_Mult = 1.5;     // وقف الخسارة = ATR ×
 input double InpTP_R        = 2.0;     // الهدف = الوقف × R
 input long   InpMagic       = 20261104;// الرقم السحري
-input int    InpMaxSpreadPts= 30;      // أقصى سبريد مقبول (نقاط)
+input double InpMaxSpreadATR= 0.25;    // أقصى سبريد مقبول كنسبة من ATR (0.25 = 25%)
 input bool   InpOneTrade    = true;    // صفقة واحدة في نفس الوقت
 input int    InpTimerSeconds= 30;      // قراءة السوق كل كم ثانية
 input int    InpMaxTradesDay= 3;       // أقصى عدد صفقات في اليوم
 input double InpDailyLossPct= 3.0;     // وقف التداول اليومي عند خسارة % من الرصيد
+input bool   InpVerbose     = true;    // طباعة قراءة السوق في سجل Experts كل شمعة
 
 int hEMA9, hEMA21, hEMA50, hEMA200, hRSI, hMACD, hATR;
 datetime lastBarTime = 0;
@@ -107,14 +108,13 @@ double CalcLot(double slDistancePrice){
    lot = MathFloor(lot / step) * step;
    return MathMax(minLot, MathMin(maxLot, NormalizeDouble(lot, 2)));
 }
+datetime lastPrintBar = 0;
 void Evaluate(){
    // الحراس أولاً — الروبوت ما كيغامرش
    if(InpOneTrade && HasOpenTrade()) return;
    if(TradesToday() >= InpMaxTradesDay) return;
    double balance = AccountInfoDouble(ACCOUNT_BALANCE);
    if(balance > 0 && DailyPL() <= -balance * InpDailyLossPct / 100.0) return;
-   long spread = SymbolInfoInteger(_Symbol, SYMBOL_SPREAD);
-   if(spread > InpMaxSpreadPts) return;
    // دخول واحد كحد أقصى في كل شمعة (القراءة كل 30 ثانية ما كتضاعفش الصفقات)
    datetime bar0 = iTime(_Symbol, PERIOD_CURRENT, 0);
    if(bar0 == lastEntryBar) return;
@@ -138,6 +138,17 @@ void Evaluate(){
 
    double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
    double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+   // فلتر السبريد نسبي لـ ATR — السبريد بالنقاط كيختلف بزاف بين الرموز والبروكرات
+   double spreadPrice = ask - bid;
+   bool spreadOK = (spreadPrice <= InpMaxSpreadATR * atr);
+   if(InpVerbose && bar0 != lastPrintBar){
+      lastPrintBar = bar0;
+      Print("TradeProEA قراءة ", _Symbol, ": اتجاه ", (trendUp ? "صاعد" : (trendDn ? "هابط" : "مختلط")),
+            " · RSI ", DoubleToString(rsi, 1), " · قوة ", DoubleToString(strength, 2),
+            " · سبريد ", DoubleToString(100 * spreadPrice / atr, 1), "% من ATR ", (spreadOK ? "(مقبول)" : "(مرفوض — عالي)"),
+            " · صفقات اليوم ", TradesToday(), "/", InpMaxTradesDay);
+   }
+   if(!spreadOK) return;
    if((freshUp && trendUp && macd > macdSig && rsi >= 40 && rsi <= 68 && strength > 0.08) || contUp){
       double sl = ask - InpSL_ATR_Mult * atr;
       double tp = ask + (ask - sl) * InpTP_R;

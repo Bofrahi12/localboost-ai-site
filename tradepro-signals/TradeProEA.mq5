@@ -12,7 +12,7 @@
 //| وفريم 4H خاسر (−29R): الروبوت للشارت 1H فقط.                    |
 //+------------------------------------------------------------------+
 #property strict
-#property version "2.00"
+#property version "2.10"
 #include <Trade/Trade.mqh>
 CTrade trade;
 
@@ -230,9 +230,18 @@ void MaybeTestTrade(){
       Print("TradeProEA: ❌ صفقة الاختبار فشلات: ", trade.ResultRetcodeDescription());
    }
 }
+
+void Panel(){
+   bool algo = (bool)TerminalInfoInteger(TERMINAL_TRADE_ALLOWED) && (bool)MQLInfoInteger(MQL_TRADE_ALLOWED);
+   string basket = !InpBasketOnly ? "مفتوحة — كل الأسواق" : (SymbolInBasket() ? "في سلة الرابحين ✅" : "برا السلة — الدخول موقوف ⛔");
+   Comment("🤖 TradePro Expert v2.1 — ", _Symbol, "\n",
+           "التداول الآلي: ", (algo ? "مفعّل ✅" : "موقوف ❌"), " · السلة: ", basket, "\n",
+           "صفقات اليوم: ", TradesToday(), "/", InpMaxTradesDay, " · نتيجة اليوم: ", DoubleToString(DailyPL(), 2), "\n",
+           "آخر قراءة: ", TimeToString(TimeCurrent(), TIME_SECONDS), " · الأسباب في سجل Experts (نبض كل ", InpTimerSeconds, " ثانية)");
+}
 void OnTick(){
    datetime t[]; if(CopyTime(_Symbol, PERIOD_CURRENT, 0, 1, t) < 1) return;
    if(t[0] != lastBarTime){ lastBarTime = t[0]; Evaluate(); }
 }
-void OnTimer(){ Heartbeat(); MaybeTestTrade(); Evaluate(); }
+void OnTimer(){ Panel(); Heartbeat(); MaybeTestTrade(); Evaluate(); }
 //+------------------------------------------------------------------+

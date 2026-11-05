@@ -1,20 +1,4 @@
-# TradePro Signals
-
-TradePro Signals is a live crypto market analysis platform. It computes trade setups
-(entry, stop loss, three take-profit targets, signal strength) from real Binance
-public market data using EMA, RSI, MACD and ATR, refreshed continuously.
-
-## What it is
-- A live analysis and education tool for traders who execute on their own broker
-  account (for example Exness / MetaTrader).
-- Includes a position-size calculator (1% risk rule) and a step-by-step usage guide.
-
-## What it is not
-- Not a broker: it never accepts deposits and never holds client funds.
-- Not financial advice, and it does not promise profits. In an out-of-sample
-  backtest on real Binance data (24 configurations), the best first-target hit
-  rate was 60.5% with expectancy close to break-even after estimated costs.
-  No indicator strategy wins 90% of the time or always profits.
-
-## Pricing (owner's plans)
-- Premium: $29/month. Pro: $49/month. White-label licence available from the owner.
+# TradePro Signals — منصة إشارات تداول + روبوت MT5
+منصة تحليل حي كل 30 ثانية على 21 زوجاً في 5 أسواق (كريبتو، معادن وطاقة، فوركس، مؤشرات، أسهم) ببطاقات فيها الاتجاه (شراء/بيع)، الدخول، وقف الخسارة و3 أهداف، مع أسباب الاتجاه وحاسبة حجم الصفقة وسجل ورقي للاختبار الأمامي.
+الروبوت TradePro Expert v2.1 (MetaTrader 5): كيتداول تلقائياً غير في سلة الرابحين المختبرة (BTC, ADA, SOL, XRP, EUR/USD, AAPL, TSLA) بحارس سلة كيرفض الأسواق الخاسرة في الاختبار، قراءة كل 30 ثانية مع نبض تفسيري في السجل ولوحة على الشارت، مخاطرة 1%، أقصى 3 صفقات/يوم، إيقاف يومي −3%. الثمن: $99 دفعة واحدة عبر واتساب.
+أداء مقاس بصدق ومنشور في الموقع: اختبار شامل 597 صفقة على 20 سوقاً — سلة الرابحين +37.6R (موجبة داخل العينة +27.8R وخارجها +10.0R)، وباقي الأسواق سلبية ومعلنة. لا وعود ربح ولا إيداعات: المنصة ليست بروكراً والتنفيذ دائماً في حساب العميل عند بروكيره.

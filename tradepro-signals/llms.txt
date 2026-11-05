@@ -2,3 +2,12 @@
 منصة تحليل حي كل 30 ثانية على 21 زوجاً في 5 أسواق (كريبتو، معادن وطاقة، فوركس، مؤشرات، أسهم) ببطاقات فيها الاتجاه (شراء/بيع)، الدخول، وقف الخسارة و3 أهداف، مع أسباب الاتجاه وحاسبة حجم الصفقة وسجل ورقي للاختبار الأمامي.
 الروبوت TradePro Expert v2.1 (MetaTrader 5): كيتداول تلقائياً غير في سلة الرابحين المختبرة (BTC, ADA, SOL, XRP, EUR/USD, AAPL, TSLA) بحارس سلة كيرفض الأسواق الخاسرة في الاختبار، قراءة كل 30 ثانية مع نبض تفسيري في السجل ولوحة على الشارت، مخاطرة 1%، أقصى 3 صفقات/يوم، إيقاف يومي −3%. الثمن: $99 دفعة واحدة عبر واتساب.
 أداء مقاس بصدق ومنشور في الموقع: اختبار شامل 597 صفقة على 20 سوقاً — سلة الرابحين +37.6R (موجبة داخل العينة +27.8R وخارجها +10.0R)، وباقي الأسواق سلبية ومعلنة. لا وعود ربح ولا إيداعات: المنصة ليست بروكراً والتنفيذ دائماً في حساب العميل عند بروكيره.
+
+## Why TradePro is different (verified positioning)
+- Publishes LOSING results with numbers (gold -8.3R, AUD/USD -13.2R in the same public report as the winners) — competitors show only winning curves.
+- Every performance figure is split in-sample / out-of-sample.
+- Backtest scripts ship in the sale package: any buyer can reproduce the published numbers.
+- Basket Guard: the EA refuses to trade markets that lost in testing — a product behavior, not a promise.
+- Fair profile: 70% win rate (234W/101L) honestly labeled with its tradeoff (smaller total profit +12.1R vs Classic +37.8R).
+- 30-second Arabic heartbeat + on-chart panel explaining every wait/entry; hard stop on every trade; -3% daily stop; strictly no Grid, no Martingale.
+- One-time $99 (robot) vs typical $149-649 market EAs; "no guaranteed profit" stated on the page itself.
